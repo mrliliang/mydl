@@ -1,0 +1,1 @@
+antlr -no-listener -no-visitor -Dlanguage=Cpp MyDatalog.g4

@@ -1,0 +1,8 @@
+EDB_DECL:
+Groups(x int, y int, z int)
+
+IDB_DECL:
+Group_sizes(x int, y long, z long)
+
+RULE_DECL:
+Group_sizes(x, COUNT_DISTINCT(y), COUNT_DISTINCT(z)) :- Groups(x, y, z).

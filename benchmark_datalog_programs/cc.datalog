@@ -1,0 +1,13 @@
+EDB_DECL:
+Arc(x int, y int)
+
+IDB_DECL:
+Cc3(x int, y int)
+Cc2(x int, y int)
+Cc(x int)
+
+RULE_DECL:
+Cc3(x, MIN(x)) :- Arc(x, _).
+Cc3(y, MIN(z)) :- Cc3(x,z), Arc(x,y).
+Cc2(x, MIN(y)) :- Cc3(x,y). 
+Cc(x) :- Cc2(_,x).
