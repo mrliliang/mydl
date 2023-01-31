@@ -39,6 +39,16 @@ public:
     RuleAnalyzer(vector<RuleMap> *rules);
     ~RuleAnalyzer();
 
+    
+
+private:
+    map<string, vector<int>> *atomRuleMap = nullptr;
+    vector<string> *ruleAtomMap = nullptr;
+    DependencyGraph *dg = nullptr;
+    map<int, vector<int>> *sccs = nullptr;
+    bool stratifiable;
+    vector<RuleGroup> *ruleGroups = nullptr;
+
     map<string, vector<int>> *constructAtomRuleMap(vector<RuleMap> *rules);
 
     vector<string> *constructRuleAtomMap(vector<RuleMap> *rules);
@@ -52,14 +62,6 @@ public:
     bool isRecursiveScc(vector<int> *scc, vector<vector<int>> *dependency);
 
     vector<RuleGroup> *groupRules(vector<string> *ruleAtomMap, map<int, vector<int>> *sccs, vector<vector<int>> *dependency);
-
-private:
-    map<string, vector<int>> *atomRuleMap;
-    vector<string> *ruleAtomMap;
-    DependencyGraph *dg;
-    map<int, vector<int>> *sccs;
-    bool stratifiable;
-    vector<RuleGroup> *ruleGroups;
 
     void visit(int rule, vector<vector<int>> *dependency, vector<bool> *visitFlag,
                stack<int> *dfsReversePostOrder);

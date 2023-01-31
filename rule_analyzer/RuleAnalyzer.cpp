@@ -16,6 +16,7 @@ RuleAnalyzer::RuleAnalyzer(vector<RuleMap> *rules)
 
 RuleAnalyzer::~RuleAnalyzer()
 {
+    
     delete this->atomRuleMap;
     delete this->ruleAtomMap;
     delete this->dg;

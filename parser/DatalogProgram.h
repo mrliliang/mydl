@@ -24,8 +24,13 @@ using namespace std;
 
 class DatalogProgram {
 public:
-    DatalogProgram(string& datalogFile);
+    DatalogProgram(string datalogFile);
     ~DatalogProgram();
+
+    vector<Schema> &getEdbs();
+    vector<Schema> &getIdbs();
+    vector<RuleMap> &getRules();
+    void print();
 
 private:
     vector<Schema> edbs;
@@ -40,7 +45,5 @@ private:
     void iterateDatalogRule(RuleMap &rule);
     void iterateEdbIdb(vector<Schema> &relations);
 
-    vector<Schema>& getEdbs();
-    vector<Schema>& getIdbs();
-    vector<RuleMap>& getRules();
+    
 };

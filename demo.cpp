@@ -180,12 +180,8 @@ unique_ptr<C> c() {
 
 int main(int argc, char *args[])
 {
-    unique_ptr<C> pc = c();
-    cout << pc->pb->pa->str << endl;
-    pc->pb->pa->output();
-
-
-    shared_ptr<A> pa = make_shared<A>();
-    pa = make_shared<A>();
-    cout << "count = " << pa.use_count() << endl;
+    map<string, vector<int>> *headRuleMap = nullptr;
+    std::cout << headRuleMap << std::endl;
+    delete headRuleMap;
+    delete headRuleMap;
 }

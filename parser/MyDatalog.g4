@@ -128,8 +128,8 @@ compare_expr returns [CompareMap r] :
     (c1 = TOKEN_ID {compare_map.lhsText = $c1.text; compare_map.lhsType = "var";} | 
      c2 = TOKEN_INTEGER {compare_map.lhsText = $c2.text; compare_map.lhsType = "num";})
      op = compare_op {compare_map.op = $op.r;}
-    (c3 = TOKEN_ID {compare_map.lhsText = $c3.text; compare_map.lhsType = "var";} | 
-     c4 = TOKEN_INTEGER {compare_map.lhsText = $c4.text; compare_map.lhsType = "num";})
+    (c3 = TOKEN_ID {compare_map.rhsText = $c3.text; compare_map.rhsType = "var";} | 
+     c4 = TOKEN_INTEGER {compare_map.rhsText = $c4.text; compare_map.rhsType = "num";})
     {$r = compare_map;}
 ;
 

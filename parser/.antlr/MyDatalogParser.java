@@ -1055,14 +1055,14 @@ public class MyDatalogParser extends Parser {
 				{
 				setState(249);
 				((Compare_exprContext)_localctx).c3 = match(TOKEN_ID);
-				compare_map.lhsText = (((Compare_exprContext)_localctx).c3!=null?((Compare_exprContext)_localctx).c3.getText():null); compare_map.lhsType = "var";
+				compare_map.rhsText = (((Compare_exprContext)_localctx).c3!=null?((Compare_exprContext)_localctx).c3.getText():null); compare_map.rhsType = "var";
 				}
 				break;
 			case TOKEN_INTEGER:
 				{
 				setState(251);
 				((Compare_exprContext)_localctx).c4 = match(TOKEN_INTEGER);
-				compare_map.lhsText = (((Compare_exprContext)_localctx).c4!=null?((Compare_exprContext)_localctx).c4.getText():null); compare_map.lhsType = "num";
+				compare_map.rhsText = (((Compare_exprContext)_localctx).c4!=null?((Compare_exprContext)_localctx).c4.getText():null); compare_map.rhsType = "num";
 				}
 				break;
 			default:

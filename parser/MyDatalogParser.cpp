@@ -1349,14 +1349,14 @@ MyDatalogParser::Compare_exprContext* MyDatalogParser::compare_expr() {
       case MyDatalogParser::TOKEN_ID: {
         setState(249);
         antlrcpp::downCast<Compare_exprContext *>(_localctx)->c3 = match(MyDatalogParser::TOKEN_ID);
-        compare_map.lhsText = (antlrcpp::downCast<Compare_exprContext *>(_localctx)->c3 != nullptr ? antlrcpp::downCast<Compare_exprContext *>(_localctx)->c3->getText() : ""); compare_map.lhsType = "var";
+        compare_map.rhsText = (antlrcpp::downCast<Compare_exprContext *>(_localctx)->c3 != nullptr ? antlrcpp::downCast<Compare_exprContext *>(_localctx)->c3->getText() : ""); compare_map.rhsType = "var";
         break;
       }
 
       case MyDatalogParser::TOKEN_INTEGER: {
         setState(251);
         antlrcpp::downCast<Compare_exprContext *>(_localctx)->c4 = match(MyDatalogParser::TOKEN_INTEGER);
-        compare_map.lhsText = (antlrcpp::downCast<Compare_exprContext *>(_localctx)->c4 != nullptr ? antlrcpp::downCast<Compare_exprContext *>(_localctx)->c4->getText() : ""); compare_map.lhsType = "num";
+        compare_map.rhsText = (antlrcpp::downCast<Compare_exprContext *>(_localctx)->c4 != nullptr ? antlrcpp::downCast<Compare_exprContext *>(_localctx)->c4->getText() : ""); compare_map.rhsType = "num";
         break;
       }
 
