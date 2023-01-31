@@ -68,9 +68,9 @@ void DatalogProgram::iterateDatalogRule(RuleMap &rule)
             if (arg.aggmap.aggArg.type == "math_expr") {
                 argStr.append(arg.aggmap.aggOp)
                     .append("(")
-                    .append(arg.aggmap.aggArg.mathmap.lhs)
-                    .append(arg.aggmap.aggArg.mathmap.op)
-                    .append(arg.aggmap.aggArg.mathmap.rhs)
+                    .append(arg.aggmap.aggArg.mathExpr.lhs)
+                    .append(arg.aggmap.aggArg.mathExpr.op)
+                    .append(arg.aggmap.aggArg.mathExpr.rhs)
                     .append(")");
             }
         } else if (arg.type == "math_expr") {
@@ -80,7 +80,7 @@ void DatalogProgram::iterateDatalogRule(RuleMap &rule)
         } else {
             argStr = arg.name;
         }
-        headArgsStr.emplace_back(argStr);
+        headArgsStrs.emplace_back(argStr);
     }
 
     //TODO to be completed
@@ -95,8 +95,62 @@ void DatalogProgram::iterateDatalogRule(RuleMap &rule)
     headStr.append(")");
 
     vector<string> bodyItemStrs;
-    string bodyStr{""};
+    for (auto atom : body.atoms) {
+        string item;
+        item.append(atom.name)
+            .append("(");
+        for (auto it = atom.argList.begin(); it != atom.argList.end(); it++) {
+            if (it != atom.argList.begin()) {
+                item.append(", ");
+            }
+            item.append(it->name);
+        }
+        item.append(")");
+        bodyItemStrs.emplace_back(item);
+    }
 
+    for (auto compare : body.compares) {
+        string item;
+        item.append(compare.lhsText)
+            .append(compare.op)
+            .append(compare.rhsText);
+        bodyItemStrs.emplace_back(item);
+    }
+
+    for (auto atom : body.negations) {
+        string item;
+        item.append("!")
+            .append(atom.name)
+            .append("(");
+        for (auto it = atom.argList.begin(); it != atom.argList.end(); it++) {
+            if (it != atom.argList.begin()) {
+                item.append(", ");
+            }
+            item.append(it->name);
+        }
+        item.append(")");
+        bodyItemStrs.emplace_back(item);
+
+    }
+    for (auto assign : body.assigns) {
+        string item;
+        item.append(assign.lhs)
+            .append(" = ")
+            .append(assign.rhs.lhs)
+            .append(" ")
+            .append(assign.rhs.op)
+            .append(" ")
+            .append(assign.rhs.rhs);
+        bodyItemStrs.emplace_back(item);
+    }
+
+    string bodyStr{""};
+    for (auto it = bodyItemStrs.begin(); it != bodyItemStrs.end(); it++) {
+        if (it != bodyItemStrs.begin()) {
+            bodyStr.append(", ");
+        }
+        bodyStr.append(*it);
+    }
     std::cout << headStr << " :- " << bodyStr << std::endl;
 }
 
