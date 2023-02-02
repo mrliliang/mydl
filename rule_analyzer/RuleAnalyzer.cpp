@@ -90,10 +90,10 @@ DependencyGraph *RuleAnalyzer::constructDependencyGraph(vector<RuleMap> *rules)
 
 map<int, vector<int>> *RuleAnalyzer::computeRuleSccs(vector<vector<int>> *dependency)
 {
-    vector<bool> visitFlag{static_cast<bool>(dependency->size()), false};
-    vector<int> ruleAssignedMap{static_cast<int>(dependency->size()), 0};
+    vector<int> visitFlag(dependency->size(), 0);
+    vector<int> ruleAssignedMap(dependency->size(), 0);
     stack<int> dfsReversePostOrder;
-    map<int, vector<int>> *sccs;
+    map<int, vector<int>> *sccs = new map<int, vector<int>>{};
 
     for (int rule = 0; rule < dependency->size(); rule++)
     {
@@ -109,7 +109,7 @@ map<int, vector<int>> *RuleAnalyzer::computeRuleSccs(vector<vector<int>> *depend
         }
     }
 
-    std::fill(visitFlag.begin(), visitFlag.end(), false);
+    std::fill(visitFlag.begin(), visitFlag.end(), 0);
     while (!dfsReversePostOrder.empty())
     {
             auto rule = dfsReversePostOrder.top();
@@ -120,14 +120,14 @@ map<int, vector<int>> *RuleAnalyzer::computeRuleSccs(vector<vector<int>> *depend
     return sccs;
 }
 
-void RuleAnalyzer::visit(int rule, vector<vector<int>> *dependency, vector<bool> *visitFlag,
+void RuleAnalyzer::visit(int rule, vector<vector<int>> *dependency, vector<int> *visitFlag,
                          stack<int> *dfsReversePostOrder)
 {
     if ((*visitFlag)[rule])
     {
         return;
     }
-    (*visitFlag)[rule] = true;
+    (*visitFlag)[rule] = 1;
     for (auto dependentRule : dependency->at(rule))
     {
         visit(dependentRule, dependency, visitFlag, dfsReversePostOrder);
@@ -136,12 +136,12 @@ void RuleAnalyzer::visit(int rule, vector<vector<int>> *dependency, vector<bool>
 }
 
 void RuleAnalyzer::assign(int rule, int root, vector<vector<int>> *transpose, 
-                          vector<bool> *visitFlag, map<int, vector<int>> *sccs)
+                          vector<int> *visitFlag, map<int, vector<int>> *sccs)
 {
     if (visitFlag->at(rule)) {
         return;
     }
-    (*visitFlag)[rule] = true;
+    (*visitFlag)[rule] = 1;
     if (sccs->find(root) == sccs->end()) {
         (*sccs)[root] = vector<int>();
         sccs->at(root).emplace_back(root);

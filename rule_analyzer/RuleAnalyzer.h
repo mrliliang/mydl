@@ -63,9 +63,9 @@ private:
 
     vector<RuleGroup> *groupRules(vector<string> *ruleAtomMap, map<int, vector<int>> *sccs, vector<vector<int>> *dependency);
 
-    void visit(int rule, vector<vector<int>> *dependency, vector<bool> *visitFlag,
+    void visit(int rule, vector<vector<int>> *dependency, vector<int> *visitFlag,
                stack<int> *dfsReversePostOrder);
 
     void assign(int rule, int root, vector<vector<int>> *transpose,
-                vector<bool> *visitFlag, map<int, vector<int>> *sccs);
+                vector<int> *visitFlag, map<int, vector<int>> *sccs);
 };
