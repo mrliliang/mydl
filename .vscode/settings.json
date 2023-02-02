@@ -102,4 +102,7 @@
         "**/target": true
     },
     "cmake.configureOnOpen": false,
+    "cmake.debugConfig": {
+    "args": ["/Users/liliang/VSCode/mydatalog/benchmark_datalog_programs/cc.datalog"],
+    },
 }

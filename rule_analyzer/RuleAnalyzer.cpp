@@ -1,6 +1,7 @@
 
 #include <iostream>
 #include <unordered_set>
+#include <algorithm>
 
 #include "RuleAnalyzer.h"
 
