@@ -4,8 +4,6 @@
 
 #include "antlr4-runtime.h"
 
-// #include "DatalogCPPLexer.h"
-// #include "DatalogCPPParser.h"
 
 #include "MyDatalogLexer.h"
 #include "MyDatalogParser.h"
@@ -13,23 +11,8 @@
 using namespace std;
 using namespace antlr4;
 
-/*
-    EDB_DECL:
-    Arc(x int, y int)
-
-    IDB_DECL :
-    Cc3(x int, y int)
-    Cc2(x int, y int)
-    Cc(x int)
-
-    RULE_DECL :
-    Cc3(x, MIN(x)) : -Arc(x, _).
-    Cc3(y, MIN(z)) : -Cc3(x, z),Arc(x, y).
-    Cc2(x, MIN(y)) : -Cc3(x, y).
-    Cc(x) : -Cc2(_, x).
-*/
-
-int main(int argc, char * args[]) {
+int main(int argc, char *args[])
+{
     // ANTLRInputStream input(u8"🍴 = 🍐 + \"😎\";(((x * π))) * µ + ∰; a + (x * (y ? 0 : 1) + z);");
 
     string str{"EDB_DECL:\n"
@@ -83,5 +66,3 @@ int main(int argc, char * args[]) {
 
     return 0;
 }
-
-
