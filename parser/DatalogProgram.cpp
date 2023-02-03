@@ -19,10 +19,6 @@ DatalogProgram::DatalogProgram(string datalogFilePath)
     this->idbs = parser.datalog_idb_declare()->r;
     this->rules = parser.datalog_rule_declare()->r;
 
-    // RuleAnalyzer analyzer{&this->rules};
-    // this->dg = ;
-    // this.sccs = ;
-    // this.ruleGroups = ;
 }
 
 DatalogProgram::~DatalogProgram()

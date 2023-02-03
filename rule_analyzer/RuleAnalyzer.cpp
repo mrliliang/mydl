@@ -113,7 +113,6 @@ DependencyGraph *RuleAnalyzer::constructDependencyGraph(vector<RuleMap> *rules)
 map<int, vector<int>> *RuleAnalyzer::computeRuleSccs(vector<vector<int>> *dependency)
 {
     vector<int> visitFlag(dependency->size(), 0);
-    // vector<int> ruleAssignedMap(dependency->size(), 0);
     stack<int> dfsReversePostOrder;
     map<int, vector<int>> *sccs = new map<int, vector<int>>{};
 
