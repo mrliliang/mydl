@@ -45,5 +45,4 @@ private:
     void iterateDatalogRule(RuleMap &rule);
     void iterateEdbIdb(vector<Schema> &relations);
 
-    
 };

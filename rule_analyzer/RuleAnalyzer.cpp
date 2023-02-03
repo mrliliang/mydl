@@ -1,6 +1,8 @@
 
 #include <iostream>
 #include <unordered_set>
+#include <unordered_map>
+#include <stack>
 #include <algorithm>
 
 #include "RuleAnalyzer.h"
@@ -25,6 +27,12 @@ RuleAnalyzer::~RuleAnalyzer()
     delete this->ruleGroups;
 }
 
+/**
+ * @brief (head atom, rules)
+ * 
+ * @param rules 
+ * @return map<string, vector<int>>* 
+ */
 map<string, vector<int>> *RuleAnalyzer::constructAtomRuleMap(vector<RuleMap> *rules)
 {
     map<string, vector<int>> *headRuleMap = new map<string, vector<int>>{};
@@ -41,6 +49,12 @@ map<string, vector<int>> *RuleAnalyzer::constructAtomRuleMap(vector<RuleMap> *ru
     return headRuleMap;
 }
 
+/**
+ * @brief rule head atom name
+ * 
+ * @param rules 
+ * @return vector<string>* 
+ */
 vector<string> *RuleAnalyzer::constructRuleAtomMap(vector<RuleMap> *rules)
 {
     vector<string> *ruleAtomMap = new vector<string>{};
@@ -62,25 +76,32 @@ DependencyGraph *RuleAnalyzer::constructDependencyGraph(vector<RuleMap> *rules)
         dg->dependency->emplace_back(vector<int>());
         dg->negDependency->emplace_back(vector<int>());
 
+        unordered_set<string> flag;
         for (auto atom : rule.body.atoms)
         {
             if (headRuleMap->find(atom.name) != headRuleMap->end())
             {
-                for (auto dependentRuleIndex : (*headRuleMap)[atom.name])
-                {
-                    dg->dependency->at(i).emplace_back(dependentRuleIndex);
+                if (flag.find(atom.name) == flag.end()) {
+                    flag.insert(atom.name);
+                    for (auto dependentRuleIndex : (*headRuleMap)[atom.name])
+                    {
+                        dg->dependency->at(i).emplace_back(dependentRuleIndex);
+                    }
                 }
             }
         }
 
+        flag.clear();
         for (auto atom : rule.body.negations)
         {
             if (headRuleMap->find(atom.name) != headRuleMap->end())
             {
-                for (auto dependentRuleIndex : (*headRuleMap)[atom.name])
-                {
-                    dg->dependency->at(i).emplace_back(dependentRuleIndex);
-                    dg->negDependency->at(i).emplace_back(dependentRuleIndex);
+                if (flag.find(atom.name) == flag.end()) {
+                    flag.insert(atom.name);
+                    for (auto dependentRuleIndex : (*headRuleMap)[atom.name]) {
+                        dg->dependency->at(i).emplace_back(dependentRuleIndex);
+                        dg->negDependency->at(i).emplace_back(dependentRuleIndex);
+                    }
                 }
             }
         }
@@ -92,7 +113,7 @@ DependencyGraph *RuleAnalyzer::constructDependencyGraph(vector<RuleMap> *rules)
 map<int, vector<int>> *RuleAnalyzer::computeRuleSccs(vector<vector<int>> *dependency)
 {
     vector<int> visitFlag(dependency->size(), 0);
-    vector<int> ruleAssignedMap(dependency->size(), 0);
+    // vector<int> ruleAssignedMap(dependency->size(), 0);
     stack<int> dfsReversePostOrder;
     map<int, vector<int>> *sccs = new map<int, vector<int>>{};
 
@@ -145,7 +166,7 @@ void RuleAnalyzer::assign(int rule, int root, vector<vector<int>> *transpose,
     (*visitFlag)[rule] = 1;
     if (sccs->find(root) == sccs->end()) {
         (*sccs)[root] = vector<int>();
-        sccs->at(root).emplace_back(root);
+        // sccs->at(root).emplace_back(root);
     }
     sccs->at(root).emplace_back(rule);
 
@@ -188,7 +209,7 @@ bool RuleAnalyzer::checkNegationCycle(map<int, vector<int>> *sccs,
 
 bool RuleAnalyzer::isRecursiveScc(vector<int> *scc, vector<vector<int>> *dependency)
 {
-    if (scc->size() >=2) {
+    if (scc->size() >= 2) {
         return true;
     }
 
@@ -205,7 +226,7 @@ vector<RuleGroup> *RuleAnalyzer::groupRules(vector<string> *ruleAtomMap, map<int
                                             vector<vector<int>> *dependency)
 {
     vector<RuleGroup> *groups = new vector<RuleGroup>{};
-    unordered_set<string> nonRecursiveRuleHeads;
+    unordered_map<string, vector<int>> nonRecursiveGroup;
 
     for (auto it : *sccs) {
         int sccKey = it.first;
@@ -216,14 +237,87 @@ vector<RuleGroup> *RuleAnalyzer::groupRules(vector<string> *ruleAtomMap, map<int
         }
         else {
             string headName = ruleAtomMap->at(sccKey);
-            if (nonRecursiveRuleHeads.find(headName) == nonRecursiveRuleHeads.end()) {
-                groups->emplace_back(RuleGroup(scc, false));
+            if (nonRecursiveGroup.find(headName) == nonRecursiveGroup.end())
+            {
+                nonRecursiveGroup[headName] = scc;
             }
             else {
-                nonRecursiveRuleHeads.insert(headName);
+                nonRecursiveGroup[headName]
+                    .insert(nonRecursiveGroup[headName].end(), scc.begin(), scc.end());
             }
         }
     }
 
+    for (auto it : nonRecursiveGroup) {
+        groups->emplace_back(RuleGroup(it.second, false));
+    }
+
     return groups;
+}
+
+void RuleAnalyzer::printDependencyGraph() {
+    if (this->dg == nullptr) {
+        return;
+    }
+    vector<vector<int>> *dependencies = this->dg->dependency;
+    for (int i = 0; i < dependencies->size(); i++) {
+        std::cout << "rule "
+                  << i 
+                  << ": ";
+        vector<int>& dp = dependencies->at(i);
+        for (auto it = dp.begin(); it != dp.end(); it++) {
+            if (it != dp.begin()) {
+                std::cout << ", ";
+            }
+            std::cout << *it;
+        }
+        std::cout << endl;
+    }
+}
+
+void RuleAnalyzer::printSccs() {
+    if (this->sccs == nullptr) {
+        return;
+    }
+    std::cout << "Number of rule sccs: "
+              << this->sccs->size() 
+              << std::endl;
+    int ruleIndex = 0;
+    for (auto kv : *(this->sccs)) {
+        std::cout << "rscc "
+                  << ruleIndex
+                  << ": "
+                  << kv.first
+                  << "-";
+        for (auto it = kv.second.begin(); it != kv.second.end(); it++) {
+            if (it != kv.second.begin()) {
+                std::cout << ", ";
+            }
+            std::cout << *it;
+        }
+        std::cout << std::endl;
+        ruleIndex++;
+    }
+}
+
+void RuleAnalyzer::printRuleGroups() {
+    if (this->ruleGroups == nullptr) {
+        return;
+    }
+
+    int groupIndex = 0;
+    for (RuleGroup &group : *(this->ruleGroups)) {
+        std::cout << "Group "
+                  << groupIndex
+                  << ": ";
+        vector<int> &rules = group.rules;
+        for (auto it = rules.begin(); it != rules.end(); it++) {
+            if (it != rules.begin()) {
+                std::cout << ", ";
+            }
+            std::cout << *it;
+        }
+        std::cout << std::endl;
+        groupIndex++;
+    }
 }

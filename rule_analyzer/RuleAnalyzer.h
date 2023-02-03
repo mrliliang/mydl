@@ -8,8 +8,8 @@
 
 struct DependencyGraph
 {
-    vector<vector<int>> *dependency;
-    vector<vector<int>> *negDependency;
+    vector<vector<int>> *dependency = nullptr;
+    vector<vector<int>> *negDependency = nullptr;
 
     DependencyGraph()
     {
@@ -39,7 +39,9 @@ public:
     RuleAnalyzer(vector<RuleMap> *rules);
     ~RuleAnalyzer();
 
-    
+    void printDependencyGraph();
+    void printSccs();
+    void printRuleGroups();
 
 private:
     map<string, vector<int>> *atomRuleMap = nullptr;

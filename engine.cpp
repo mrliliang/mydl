@@ -25,14 +25,14 @@ int main(int argc, char *args[])
     vector<RuleMap> &rules = prog.getRules();
     RuleAnalyzer analyzer{&prog.getRules()};
 
-    // vector<Schema> &edbs = prog.getEdbs();
-    // prog.iterateEdbIdb(edbs);
+    std::cout << "Rule dependency" << endl;
+    analyzer.printDependencyGraph();
 
-    // vector<Schema> &idbs = prog.getIdbs();
-    // prog.iterateEdbIdb(idbs);
+    std::cout << "Rule sccs" << endl;
+    analyzer.printSccs();
 
-    // vector<RuleMap> &rules = prog.getRules();
-    // prog.iterateDatalogProgram(rules);
+    std::cout << "Rule groups" << endl;
+    analyzer.printRuleGroups();
 
     return 0;
 }

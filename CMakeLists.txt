@@ -17,7 +17,7 @@ add_executable(parser
     ./parser/DatalogProgram.cpp
     ./rule_analyzer/RuleAnalyzer.cpp
 )
-target_link_libraries(parser antlr4-runtime stdc++)
+target_link_libraries(parser antlr4-runtime)
 
 add_executable(engine 
     ./parser/MyDatalogLexer.cpp 
@@ -28,6 +28,6 @@ add_executable(engine
 )
 
 # target_link_libraries(parser /usr/local/lib/libantlr4-runtime.a)
-target_link_libraries(engine antlr4-runtime stdc++)
+target_link_libraries(engine antlr4-runtime)
 
 add_executable(demo demo.cpp)

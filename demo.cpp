@@ -180,8 +180,10 @@ unique_ptr<C> c() {
 
 int main(int argc, char *args[])
 {
-    map<string, vector<int>> *headRuleMap = nullptr;
-    std::cout << headRuleMap << std::endl;
-    delete headRuleMap;
-    delete headRuleMap;
+    vector<int> vec{1, 2, 3, 4, 5};
+    string s{""};
+    map<int, vector<int>> *sccs = new map<int, vector<int>>{{1, {1, 2}}, {2, {2, 3}}, {3, {3, 4}}};
+    for (auto it : *sccs) {
+        
+    }
 }
