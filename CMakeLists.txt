@@ -24,6 +24,7 @@ add_executable(engine
     ./parser/MyDatalogParser.cpp
     ./parser/DatalogProgram.cpp
     ./rule_analyzer/RuleAnalyzer.cpp
+    ./execution/Executor.cpp
     engine.cpp
 )
 

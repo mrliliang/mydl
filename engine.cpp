@@ -4,6 +4,7 @@
 
 #include "parser/DatalogProgram.h"
 #include "rule_analyzer/RuleAnalyzer.h"
+#include "execution/Executor.h"
 
 
 
@@ -32,8 +33,18 @@ int main(int argc, char *args[])
     // analyzer.printSccs();
     analyzer.printSccs1();
 
-    std::cout << "Rule groups " << endl;
+    std::cout << "Rule groups in evaluation order" << endl;
     analyzer.printRuleGroups();
+
+    Executor executor;
+    vector<RuleGroup> *groups = analyzer.getRuleGroups();
+    for (RuleGroup &ruleGroup : *groups) {
+        if (ruleGroup.isRecursive) {
+            executor.nonRecursiveRuleEval();
+        } else {
+            executor.recursiveRuleEval();
+        }
+    }
 
     return 0;
 }

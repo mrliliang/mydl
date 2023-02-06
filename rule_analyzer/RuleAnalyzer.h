@@ -44,12 +44,14 @@ public:
     void printSccs1();
     void printRuleGroups();
 
+    vector<RuleGroup> *getRuleGroups();
+
 private:
     map<string, vector<int>> *atomRuleMap = nullptr;
     vector<string> *ruleAtomMap = nullptr;
     DependencyGraph *dg = nullptr;
     map<int, vector<int>> *sccs = nullptr;
-    vector<vector<int>> *sccs1;
+    vector<vector<int>> *sccs1 = nullptr;
     bool stratifiable;
     vector<RuleGroup> *ruleGroups = nullptr;
 

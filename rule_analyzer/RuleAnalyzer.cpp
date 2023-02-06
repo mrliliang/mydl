@@ -30,6 +30,7 @@ RuleAnalyzer::~RuleAnalyzer()
     delete this->ruleAtomMap;
     delete this->dg;
     delete this->sccs;
+    delete this->sccs1;
     delete this->ruleGroups;
 }
 
@@ -455,4 +456,8 @@ void RuleAnalyzer::printRuleGroups() {
         std::cout << std::endl;
         groupIndex++;
     }
+}
+
+vector<RuleGroup> *RuleAnalyzer::getRuleGroups() {
+    return this->ruleGroups;
 }
