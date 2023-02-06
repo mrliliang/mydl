@@ -41,6 +41,7 @@ public:
 
     void printDependencyGraph();
     void printSccs();
+    void printSccs1();
     void printRuleGroups();
 
 private:
@@ -48,6 +49,7 @@ private:
     vector<string> *ruleAtomMap = nullptr;
     DependencyGraph *dg = nullptr;
     map<int, vector<int>> *sccs = nullptr;
+    vector<vector<int>> *sccs1;
     bool stratifiable;
     vector<RuleGroup> *ruleGroups = nullptr;
 
@@ -59,15 +61,24 @@ private:
 
     map<int, vector<int>> *computeRuleSccs(vector<vector<int>> *dependency);
 
+    vector<vector<int>> *computeRuleSccs1(vector<vector<int>> *dependency);
+
     bool checkNegationCycle(map<int, vector<int>> *sccs, vector<vector<int>> *negDependency);
+
+    bool checkNegationCycle1(vector<vector<int>> *sccs, vector<vector<int>> *negDependency);
 
     bool isRecursiveScc(vector<int> *scc, vector<vector<int>> *dependency);
 
     vector<RuleGroup> *groupRules(vector<string> *ruleAtomMap, map<int, vector<int>> *sccs, vector<vector<int>> *dependency);
+
+    vector<RuleGroup> *groupRules1(vector<string> *ruleAtomMap, vector<vector<int>> *sccs, vector<vector<int>> *dependency);
 
     void visit(int rule, vector<vector<int>> *dependency, vector<int> *visitFlag,
                stack<int> *dfsReversePostOrder);
 
     void assign(int rule, int root, vector<vector<int>> *transpose,
                 vector<int> *visitFlag, map<int, vector<int>> *sccs);
+
+    void assign(int rule, int count, vector<vector<int>> *transpose,
+                vector<int> *visitFlag, vector<int> *sccIds);
 };

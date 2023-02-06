@@ -28,10 +28,11 @@ int main(int argc, char *args[])
     std::cout << "Rule dependency" << endl;
     analyzer.printDependencyGraph();
 
-    std::cout << "Rule sccs" << endl;
-    analyzer.printSccs();
+    std::cout << "Rule sccs in reverse evaluation order" << endl;
+    // analyzer.printSccs();
+    analyzer.printSccs1();
 
-    std::cout << "Rule groups" << endl;
+    std::cout << "Rule groups " << endl;
     analyzer.printRuleGroups();
 
     return 0;

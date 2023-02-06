@@ -12,9 +12,15 @@ RuleAnalyzer::RuleAnalyzer(vector<RuleMap> *rules)
     this->atomRuleMap = this->constructAtomRuleMap(rules);
     this->ruleAtomMap = this->constructRuleAtomMap(rules);
     this->dg = this->constructDependencyGraph(rules);
-    this->sccs = this->computeRuleSccs(this->dg->dependency);
-    this->stratifiable = this->checkNegationCycle(this->sccs, this->dg->negDependency);
-    this->ruleGroups = this->groupRules(this->ruleAtomMap, this->sccs, this->dg->dependency);
+
+    // this->sccs = this->computeRuleSccs(this->dg->dependency);
+    this->sccs1 = this->computeRuleSccs1(this->dg->dependency);
+
+    // this->stratifiable = this->checkNegationCycle(this->sccs, this->dg->negDependency);
+    this->stratifiable = this->checkNegationCycle1(this->sccs1, this->dg->negDependency);
+
+    // this->ruleGroups = this->groupRules(this->ruleAtomMap, this->sccs, this->dg->dependency);
+    this->ruleGroups = this->groupRules1(this->ruleAtomMap, this->sccs1, this->dg->dependency);
 }
 
 RuleAnalyzer::~RuleAnalyzer()
@@ -112,14 +118,12 @@ DependencyGraph *RuleAnalyzer::constructDependencyGraph(vector<RuleMap> *rules)
 
 
 //TODO 是正确的strata顺序吗？
-map<int, vector<int>> *RuleAnalyzer::computeRuleSccs(vector<vector<int>> *dependency)
-{
+map<int, vector<int>> *RuleAnalyzer::computeRuleSccs(vector<vector<int>> *dependency) {
     vector<int> visitFlag(dependency->size(), 0);
     stack<int> dfsReversePostOrder;
     map<int, vector<int>> *sccs = new map<int, vector<int>>{};
 
-    for (int rule = 0; rule < dependency->size(); rule++)
-    {
+    for (int rule = 0; rule < dependency->size(); rule++) {
         this->visit(rule, dependency, &visitFlag, &dfsReversePostOrder);
     }
 
@@ -138,6 +142,43 @@ map<int, vector<int>> *RuleAnalyzer::computeRuleSccs(vector<vector<int>> *depend
             auto rule = dfsReversePostOrder.top();
             dfsReversePostOrder.pop();
             this->assign(rule, rule, &transpose, &visitFlag, sccs);
+    }
+
+    return sccs;
+}
+
+vector<vector<int>> *RuleAnalyzer::computeRuleSccs1(vector<vector<int>> *dependency) {
+    vector<int> visitFlag(dependency->size(), 0);
+    stack<int> dfsReversePostOrder;
+    int count = 0;
+    vector<int> sccIds(dependency->size(), -1);
+
+    for (int rule = 0; rule < dependency->size(); rule++) {
+        this->visit(rule, dependency, &visitFlag, &dfsReversePostOrder);
+    }
+
+    vector<vector<int>> transpose{dependency->size(), vector<int>{}};
+    for (int rule = 0; rule < dependency->size(); rule++) {
+        for (auto dependentRule : dependency->at(rule)) {
+            transpose[dependentRule].emplace_back(rule);
+        }
+    }
+
+    std::fill(visitFlag.begin(), visitFlag.end(), 0);
+    while (!dfsReversePostOrder.empty()) {
+            auto rule = dfsReversePostOrder.top();
+            dfsReversePostOrder.pop();
+            if (!visitFlag[rule]) {
+                this->assign(rule, count, &transpose, &visitFlag, &sccIds);
+                count++;
+            }
+    }
+
+    vector<vector<int>> *sccs = new vector<vector<int>>(count);
+    int ruleIndex = 0;
+    for (int sccId : sccIds) {
+        sccs->at(sccId).emplace_back(ruleIndex);
+        ruleIndex++;
     }
 
     return sccs;
@@ -176,6 +217,17 @@ void RuleAnalyzer::assign(int rule, int root, vector<vector<int>> *transpose,
     }
 }
 
+void RuleAnalyzer::assign(int rule, int count, vector<vector<int>> *transpose,
+            vector<int> *visitFlag, vector<int> *sccIds) {
+    (*visitFlag)[rule] = 1;
+    (*sccIds)[rule] = count;
+    for (auto reverseDependentRule : transpose->at(rule)) {
+        if (!visitFlag->at(reverseDependentRule)) {
+            assign(reverseDependentRule, count, transpose, visitFlag, sccIds);
+        }
+    }
+}
+
 bool RuleAnalyzer::checkNegationCycle(map<int, vector<int>> *sccs,
                                       vector<vector<int>> *negDependency)
 {
@@ -202,6 +254,35 @@ bool RuleAnalyzer::checkNegationCycle(map<int, vector<int>> *sccs,
         }
         if (curNegCycle) {
             std::cout << "Negation cycle is detected in scc[" << sccKey << "]" << endl;
+        }
+    }
+
+    return negCycle;
+}
+
+bool RuleAnalyzer::checkNegationCycle1(vector<vector<int>> *sccs, vector<vector<int>> *negDependency) {
+    bool negCycle{false};
+
+    for (int sccIndex = 0; sccIndex < sccs->size(); sccIndex++) {
+        vector<int> &scc = sccs->at(sccIndex);
+
+        bool curNegCycle{false};
+        bool findNegCycle = false;
+        for (auto rule : scc) {
+            if (findNegCycle) {
+                break;
+            }
+            for (auto dependentRule : negDependency->at(rule)) {
+                if (std::find(scc.begin(), scc.end(), dependentRule) != scc.end()) {
+                    findNegCycle = true;
+                    curNegCycle = true;
+                    negCycle = true;
+                    break;
+                }
+            }
+        }
+        if (curNegCycle) {
+            std::cout << "Negation cycle is detected in scc[" << sccIndex << "]" << endl;
         }
     }
 
@@ -253,6 +334,34 @@ vector<RuleGroup> *RuleAnalyzer::groupRules(vector<string> *ruleAtomMap, map<int
         groups->emplace_back(RuleGroup(it.second, false));
     }
 
+    std::reverse(groups->begin(), groups->end());
+
+    return groups;
+}
+
+vector<RuleGroup> *RuleAnalyzer::groupRules1(vector<string> *ruleAtomMap, vector<vector<int>> *sccs, vector<vector<int>> *dependency) {
+    vector<RuleGroup> *groups = new vector<RuleGroup>{};
+    unordered_map<string, RuleGroup*> nonRecursiveGroup;
+
+    for (auto scc : *sccs) {
+        if (this->isRecursiveScc(&scc, dependency)) {
+            groups->emplace_back(RuleGroup(scc, true));
+        }
+        else {
+            string headName = ruleAtomMap->at(scc[0]);
+            if (nonRecursiveGroup.find(headName) == nonRecursiveGroup.end()) {
+                groups->emplace_back(RuleGroup(scc, false));
+                nonRecursiveGroup[headName] = &groups->back();
+            }
+            else {
+                nonRecursiveGroup[headName]
+                    ->rules.insert(nonRecursiveGroup[headName]->rules.end(), scc.begin(), scc.end());
+            }
+        }
+    }
+
+    std::reverse(groups->begin(), groups->end());
+
     return groups;
 }
 
@@ -298,6 +407,31 @@ void RuleAnalyzer::printSccs() {
         }
         std::cout << std::endl;
         ruleIndex++;
+    }
+}
+
+void RuleAnalyzer::printSccs1() {
+    if (this->sccs1 == nullptr) {
+        return;
+    }
+    std::cout << "Number of rule sccs: "
+              << this->sccs1->size() 
+              << std::endl;
+
+    for (int i = 0; i < this->sccs1->size(); i++) {
+        auto scc = this->sccs1->at(i);
+        std::cout << "rscc "
+                  << i
+                  << ": "
+                  << scc[0]
+                  << "-";
+        for (auto it = scc.begin(); it != scc.end(); it++) {
+            if (it != scc.begin()) {
+                std::cout << ", ";
+            }
+            std::cout << *it;
+        }
+        std::cout << std::endl;
     }
 }
 
