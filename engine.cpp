@@ -10,8 +10,9 @@
 
 using namespace std;
 
-int main(int argc, char *args[])
-{
+void createRelations(vector<Schema> &relations);
+
+int main(int argc, char *args[]) {
     if (argc <= 1) {
         std::cout << "no datalog program file" << std::endl;
         exit(0);
@@ -36,7 +37,17 @@ int main(int argc, char *args[])
     std::cout << "Rule groups in evaluation order" << endl;
     analyzer.printRuleGroups();
 
+
     Executor executor;
+
+    vector<Schema> &edbs = prog.getEdbs();
+    executor.createRelations(edbs);
+
+    vector<Schema> &idbs = prog.getIdbs();
+    executor.createRelations(idbs);
+
+    executor.loadData(edbs);
+
     vector<RuleGroup> *groups = analyzer.getRuleGroups();
     for (RuleGroup &ruleGroup : *groups) {
         if (ruleGroup.isRecursive) {
@@ -47,4 +58,8 @@ int main(int argc, char *args[])
     }
 
     return 0;
+}
+
+void createRelations(vector<Schema> &relations) {
+
 }
