@@ -7,7 +7,6 @@
 #include "execution/Executor.h"
 
 
-
 using namespace std;
 
 void createRelations(vector<Schema> &relations);
