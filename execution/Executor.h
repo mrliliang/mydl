@@ -1,13 +1,16 @@
+#pragma once
+
 #include "../parser/basetype.h"
 
 class Executor {
-    public:
-        Executor();
+public:
+    Executor();
 
-        void nonRecursiveRuleEval();
-        void recursiveRuleEval();
+    void nonRecursiveRuleEval();
+    void recursiveRuleEval();
 
-        void createRelation(Schema &relation);
-        void createRelations(vector<Schema> &relations);
-        void loadData(vector<Schema> &relations);
+    void dropTable(string tableName);
+    void createTable(Schema& relation);
+    void createTables(vector<Schema>& relations);
+    void loadData(vector<Schema>& relations);
 };

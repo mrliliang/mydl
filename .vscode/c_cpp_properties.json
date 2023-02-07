@@ -21,8 +21,9 @@
                 // "/usr/local/include/**",
                 // "/usr/local/lib/**",
                 "/usr/local/Cellar/antlr4-cpp-runtime/4.11.1/include/antlr4-runtime/**",
-                "/usr/local/Cellar/gcc@11/11.3.0/include/**"
+                "/usr/local/Cellar/gcc@11/11.3.0/include/**",
                 // "/usr/local/Cellar/gcc@11/11.3.0/lib/**"
+                "/usr/local/mysql/include/**"
             ],
             // "configurationProvider": "ms-vscode.cmake-tools"
             "configurationProvider": "ms-vscode"

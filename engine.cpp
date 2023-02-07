@@ -6,13 +6,14 @@
 #include "rule_analyzer/RuleAnalyzer.h"
 #include "execution/Executor.h"
 
-
 using namespace std;
 
-void createRelations(vector<Schema> &relations);
+void createTables(vector<Schema> &relations);
 
-int main(int argc, char *args[]) {
-    if (argc <= 1) {
+int main(int argc, char *args[])
+{
+    if (argc <= 1)
+    {
         std::cout << "no datalog program file" << std::endl;
         exit(0);
     }
@@ -36,14 +37,13 @@ int main(int argc, char *args[]) {
     std::cout << "Rule groups in evaluation order" << endl;
     analyzer.printRuleGroups();
 
-
     Executor executor;
 
     vector<Schema> &edbs = prog.getEdbs();
-    executor.createRelations(edbs);
+    executor.createTables(edbs);
 
     vector<Schema> &idbs = prog.getIdbs();
-    executor.createRelations(idbs);
+    executor.createTables(idbs);
 
     executor.loadData(edbs);
 
@@ -51,14 +51,11 @@ int main(int argc, char *args[]) {
     for (RuleGroup &ruleGroup : *groups) {
         if (ruleGroup.isRecursive) {
             executor.nonRecursiveRuleEval();
-        } else {
+        }
+        else {
             executor.recursiveRuleEval();
         }
     }
 
     return 0;
-}
-
-void createRelations(vector<Schema> &relations) {
-
 }
