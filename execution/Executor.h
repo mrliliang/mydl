@@ -1,16 +1,24 @@
 #pragma once
 
 #include "../parser/basetype.h"
+#include <mysql/jdbc.h>
+
+using namespace std;
+using namespace sql;
 
 class Executor {
-public:
-    Executor();
+    public:
+        Executor();
+        ~Executor();
 
-    void nonRecursiveRuleEval();
-    void recursiveRuleEval();
+        void nonRecursiveRuleEval();
+        void recursiveRuleEval();
 
-    void dropTable(string tableName);
-    void createTable(Schema& relation);
-    void createTables(vector<Schema>& relations);
-    void loadData(vector<Schema>& relations);
+        void dropTable(string tableName);
+        void createTable(Schema& relation);
+        void createTables(vector<Schema>& relations);
+        void loadData(vector<Schema>& relations);
+
+    private:
+        Connection *conn = nullptr;
 };

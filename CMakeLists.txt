@@ -9,6 +9,15 @@ set(CMAKE_BUILD_TYPE "Debug")
 # set(CMAKE_C_COMPILER, gcc-12)
 # set(CMAKE_CXX_COMPILER, g++-12)
 
+INCLUDE_DIRECTORIES(
+    # /usr/local/include
+    # /usr/local/include/antlr4-runtime 
+    /usr/local/mysql-connector-c++/include
+)
+
+LINK_DIRECTORIES(
+    /usr/local/mysql-connector-c++/lib64
+)
 
 add_executable(parser 
     ./parser/parser.cpp 
@@ -29,6 +38,9 @@ add_executable(engine
 )
 
 # target_link_libraries(parser /usr/local/lib/libantlr4-runtime.a)
-target_link_libraries(engine antlr4-runtime)
+target_link_libraries(engine 
+    antlr4-runtime 
+    mysqlcppconn
+)
 
 add_executable(demo demo.cpp)

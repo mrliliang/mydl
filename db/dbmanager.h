@@ -1,19 +1,28 @@
 #pragma once
 
 #include <string>
-#include <mysql.h>
+#include <cppconn/driver.h>
+#include <cppconn/exception.h>
+#include <cppconn/resultset.h>
+#include <cppconn/statement.h>
+#include <cppconn/sqlstring.h>
+
+using namespace std;
+using namespace sql;
 
 
 class DBManager {
     public:
-
-        DBManager(string ip, int port, string dbName, string user, string pwd);
-
-        bool connect();
-        bool close();
-        void exec(string sql);
+        DBManager* getInstance();
+        Connection* getConnection();
 
     private:
-        MYSQL mysql;
-
+        DBManager(string url, int port, string dbName, string user, string pwd);
+        static DBManager *manager = nullptr;
+        Driver *driver = nullptr;
+        string url;
+        string port;
+        string dbName;
+        string user;
+        string pwd;
 };
