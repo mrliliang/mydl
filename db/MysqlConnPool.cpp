@@ -1,8 +1,7 @@
-#include "stdafx.h"
 #include "MysqlConnPool.h"
 
 MysqlConnPool *MysqlConnPool::connPool = 
-new MysqlConnPool("tcp://192.168.1.99:3306", "chuer", "123456", 10);
+new MysqlConnPool("tcp://localhost:3306/mydatalog", "admin", "Admin1234567890", 10);
 
 MysqlConnPool::MysqlConnPool(const char * url, const char * user, const char * password, int maxSize) {
     this->url = url;
@@ -28,6 +27,7 @@ shared_ptr<Connection> MysqlConnPool::createConnection() {
     } catch (exception &e) {
         cout << "createConnection error:" << e.what() << endl;
     }
+    return nullptr;
 }
 
 

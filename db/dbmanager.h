@@ -13,12 +13,11 @@ using namespace sql;
 
 class DBManager {
     public:
-        DBManager* getInstance();
-        Connection* getConnection();
+        
 
     private:
         DBManager(string url, int port, string dbName, string user, string pwd);
-        static DBManager *manager = nullptr;
+        // static DBManager *manager = nullptr;
         Driver *driver = nullptr;
         string url;
         string port;

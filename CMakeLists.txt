@@ -15,25 +15,27 @@ INCLUDE_DIRECTORIES(
     /usr/local/mysql-connector-c++/include
 )
 
-LINK_DIRECTORIES(
-    /usr/local/mysql-connector-c++/lib64
-)
+# LINK_DIRECTORIES(
+#     /usr/local/mysql-connector-c++/lib64
+# )
 
-add_executable(parser 
-    ./parser/parser.cpp 
-    ./parser/MyDatalogLexer.cpp 
-    ./parser/MyDatalogParser.cpp
-    ./parser/DatalogProgram.cpp
-    ./rule_analyzer/RuleAnalyzer.cpp
-)
-target_link_libraries(parser antlr4-runtime)
+# add_executable(parser 
+#     ./parser/parser.cpp 
+#     ./parser/MyDatalogLexer.cpp 
+#     ./parser/MyDatalogParser.cpp
+#     ./parser/DatalogProgram.cpp
+#     ./rule_analyzer/RuleAnalyzer.cpp
+# )
+# target_link_libraries(parser antlr4-runtime)
 
 add_executable(engine 
     ./parser/MyDatalogLexer.cpp 
     ./parser/MyDatalogParser.cpp
     ./parser/DatalogProgram.cpp
     ./rule_analyzer/RuleAnalyzer.cpp
+    ./db/MysqlConnPool.cpp
     ./execution/Executor.cpp
+    ./config/Config.cpp
     engine.cpp
 )
 

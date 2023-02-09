@@ -4,11 +4,12 @@
 #include <list>
 #include <thread>
 #include <mutex>
-#include <cppconn/driver.h>
-#include <cppconn/exception.h>
-#include <cppconn/resultset.h>
-#include <cppconn/statement.h>
-#include <cppconn/sqlstring.h>
+// #include <cppconn/driver.h>
+// #include <cppconn/exception.h>
+// #include <cppconn/resultset.h>
+// #include <cppconn/statement.h>
+// #include <cppconn/sqlstring.h>
+#include <mysql/jdbc.h>
 
 using namespace std;
 using namespace sql;

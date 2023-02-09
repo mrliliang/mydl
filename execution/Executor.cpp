@@ -1,22 +1,32 @@
+#include <iostream>
 #include <sstream>
+#include <memory>
 
 
 #include "Executor.h"
+#include "../config/Config.h"
 
 using namespace std;
 
 
 Executor::Executor() {
-    Driver *driver = get_driver_instance();
-    this->conn = driver->connect("tcp://localhost:3306/mydatalog", "admin", "Admin1234567890");
-    // this->conn = driver->connect("jdbc:mysql://localhost:3306/mydatalog", "admin", "Admin1234567890");
+    try {
+        Driver *driver = get_driver_instance();
+        this->conn = driver->connect("tcp://localhost:3306/mydatalog", "admin", "Admin1234567890");
+    } catch (sql::SQLException e) {
+        std::cout << e.what() << std::endl;
+        exit(-1);
+    }
 }
 
 Executor::~Executor() {
+    if (this->conn != nullptr) {
+        this->conn->close();
+    }
     delete this->conn;
 }
 
-void Executor::nonRecursiveRuleEval() {
+void Executor::nonRecursiveRuleEval(vector<RuleMap> &rules) {
 }
 
 void Executor::recursiveRuleEval() {
@@ -24,11 +34,13 @@ void Executor::recursiveRuleEval() {
 
 void Executor::dropTable(string tableName) {
     ostringstream oss;
-    oss << "DROP TALBE "
-        << tableName;
+    oss << "DROP TABLE IF EXISTS `"
+        << tableName
+        << "`;";
     
     string sqlStr = oss.str();
-    Statement *stmt = this->conn->createStatement();
+    std::cout << sqlStr << std::endl;
+    unique_ptr<Statement> stmt{this->conn->createStatement()};
     stmt->execute(sqlStr);
 }
 
@@ -36,23 +48,24 @@ void Executor::createTable(Schema& relation) {
     this->dropTable(relation.name);
 
     ostringstream oss;
-    oss << "CREATE TALBE "
+    oss << "CREATE TABLE `"
         << relation.name
-        << " "
-        << "(";
+        << "` (";
 
     for (auto it = relation.attributes.begin(); it != relation.attributes.end(); it++) {
         if (it != relation.attributes.begin()) {
-            oss << ",";
+            oss << ", ";
         }
-        oss << it->name
-            << " "
+        oss << "`"
+            << it->name
+            << "` "
             << it->type;
     }
-    oss << ")";
+    oss << ");";
     string sqlStr = oss.str();
     std::cout << sqlStr << std::endl;
-    // this->conn->execute(sqlStr);
+    unique_ptr<Statement> stmt{this->conn->createStatement()};
+    stmt->execute(sqlStr);
 }
 
 void Executor::createTables(vector<Schema>& relations) {
@@ -61,6 +74,24 @@ void Executor::createTables(vector<Schema>& relations) {
     }
 }
 
+void Executor::loadData(Schema& relation) {
+    ostringstream oss;
+    oss << "LOAD DATA INFILE '"
+        << Config::INPUT_DIR
+        << "/"
+        << relation.name
+        << ".csv' INTO TABLE `"
+        << relation.name
+        << "` FIELDS TERMINATED BY ','";
+    string sqlStr{oss.str()};
+    std::cout << sqlStr << std::endl;
+    unique_ptr<Statement> stmt{this->conn->createStatement()};
+    stmt->execute(sqlStr);
+}
+
 void Executor::loadData(vector<Schema>& relations) {
     // load data infile "your csv file path" into table [tablename] fields terminated by ','
+    for (auto relation : relations) {
+        loadData(relation);
+    }
 }

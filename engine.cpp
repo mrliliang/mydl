@@ -47,10 +47,15 @@ int main(int argc, char *args[])
 
     executor.loadData(edbs);
 
+    vector<RuleMap> &allRuels = prog.getRules();
     vector<RuleGroup> *groups = analyzer.getRuleGroups();
     for (RuleGroup &ruleGroup : *groups) {
+        vector<RuleMap> evalRules;
+        for (int r : ruleGroup.rules) {
+            evalRules.push_back(allRules[r]);
+        }
         if (ruleGroup.isRecursive) {
-            executor.nonRecursiveRuleEval();
+            executor.nonRecursiveRuleEval(evalRules);
         }
         else {
             executor.recursiveRuleEval();
