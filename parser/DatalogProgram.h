@@ -30,6 +30,7 @@ public:
     vector<Schema> &getEdbs();
     vector<Schema> &getIdbs();
     vector<RuleMap> &getRules();
+    RuleMap &getRule(int index);
     void print();
 
 private:

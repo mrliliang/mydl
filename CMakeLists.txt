@@ -36,6 +36,7 @@ add_executable(engine
     ./db/MysqlConnPool.cpp
     ./execution/Executor.cpp
     ./config/Config.cpp
+    ./sql_generator/SqlGenerator.cpp
     engine.cpp
 )
 

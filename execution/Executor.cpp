@@ -5,6 +5,7 @@
 
 #include "Executor.h"
 #include "../config/Config.h"
+#include "../sql_generator/SqlGenerator.h"
 
 using namespace std;
 
@@ -14,7 +15,7 @@ Executor::Executor() {
         Driver *driver = get_driver_instance();
         this->conn = driver->connect("tcp://localhost:3306/mydatalog", "admin", "Admin1234567890");
     } catch (sql::SQLException e) {
-        std::cout << e.what() << std::endl;
+        std::cout << "ERROR: " << e.what() << std::endl;
         exit(-1);
     }
 }
@@ -26,10 +27,24 @@ Executor::~Executor() {
     delete this->conn;
 }
 
-void Executor::nonRecursiveRuleEval(vector<RuleMap> &rules) {
+void Executor::nonRecursiveEval(vector<RuleMap> &rules) {
+    SqlGenerator sqlGen;
+    unique_ptr<Statement> stmt{this->conn->createStatement()};
+    for (auto rule : rules) {
+        string evalStr{sqlGen.generateRuleEval(rule, false)};
+        stmt->execute(evalStr);
+    }
 }
 
-void Executor::recursiveRuleEval() {
+void Executor::recursiveEval(vector<RuleMap> &rules) {
+    bool deltaEmpty{false};
+    while (!deltaEmpty) {
+        SqlGenerator sqlGen;
+        string evalStr{sqlGen.generateRulesEval(rules, true)};
+        Statement *stmt = this->conn->createStatement();
+        stmt->execute(evalStr);
+        //TODO to be completed
+    }
 }
 
 void Executor::dropTable(string tableName) {
@@ -82,7 +97,7 @@ void Executor::loadData(Schema& relation) {
         << relation.name
         << ".csv' INTO TABLE `"
         << relation.name
-        << "` FIELDS TERMINATED BY ','";
+        << "` FIELDS TERMINATED BY ',';";
     string sqlStr{oss.str()};
     std::cout << sqlStr << std::endl;
     unique_ptr<Statement> stmt{this->conn->createStatement()};

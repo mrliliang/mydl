@@ -40,6 +40,10 @@ vector<RuleMap> &DatalogProgram::getRules()
     return this->rules;
 }
 
+RuleMap& DatalogProgram::getRule(int index) {
+    return this->rules[index];
+}
+
 void DatalogProgram::print() {
     std::cout << "EDB_DECL:" << std::endl;
     this->iterateEdbIdb(this->edbs);

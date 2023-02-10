@@ -1,7 +1,7 @@
 #pragma once
 
-#include "../parser/basetype.h"
 #include <mysql/jdbc.h>
+#include "../parser/basetype.h"
 
 using namespace std;
 using namespace sql;
@@ -11,8 +11,8 @@ class Executor {
         Executor();
         ~Executor();
 
-        void nonRecursiveRuleEval(vector<RuleMap> &rules);
-        void recursiveRuleEval();
+        void nonRecursiveEval(vector<RuleMap> &rules);
+        void recursiveEval(vector<RuleMap> &rules);
 
         void dropTable(string tableName);
         void createTable(Schema& relation);
