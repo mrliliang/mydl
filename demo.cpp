@@ -4,6 +4,7 @@
 #include <vector>
 #include <map>
 #include <memory>
+#include <sstream>
 // #include "basetype.h"
 
 
@@ -49,8 +50,10 @@ void print(T&& a) {
 }
 
 int main(int argc, char *argv[]) {
-    string select = "select *";
-    string from = "from A";
-    string query = select + " " + from;
-    std::cout << query << std::endl;
+    map<string, int> kv;
+    kv["a"];
+    kv["b"];
+    for (auto p : kv) {
+        std::cout << "(" << p.first << ", " << p.second << ")" << std::endl;
+    }
 }
