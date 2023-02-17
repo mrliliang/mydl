@@ -2,13 +2,14 @@
 #include <sstream>
 #include <map>
 #include <utility>
+#include <string>
 
 #include "SqlGenerator.h"
 
-
+using namespace std;
 struct AggStruct {
-    static const string TYPE_ATTR = "attribute";
-    static const string TYPE_MATH_EXPR = "math_expr";
+    static const string TYPE_ATTR;
+    static const string TYPE_MATH_EXPR;
 
     string type;
     pair<int, int> attr;
@@ -17,23 +18,27 @@ struct AggStruct {
     string mathOp;
 
     bool isAttr() {
-        return type == TYPE_ATTR;
+        return type == AggStruct::TYPE_ATTR;
     }
 
     bool isMath() {
-        return type == TYPE_MATH_EXPR;
+        return type == AggStruct::TYPE_MATH_EXPR;
     }
 };
+const string AggStruct::TYPE_ATTR = "attribute";
+const string AggStruct::TYPE_MATH_EXPR = "math_expr";
 
 struct MathStruct {
-
+    pair<int, int> lhs;
+    pair<int, int> rhs;
+    string mathOp;
 };
 
 struct HeadArgStruct {
-    static const string TYPE_VAR = "variable";
-    static const string TYPE_AGG = "aggregation";
-    static const string TYPE_MATH_EXPR = "math_expr";
-    static const string TYPE_CONST = "constant";
+    static const string TYPE_VAR;
+    static const string TYPE_AGG;
+    static const string TYPE_MATH_EXPR;
+    static const string TYPE_CONST;
 
     string type;
     pair<int, int> var;
@@ -42,48 +47,95 @@ struct HeadArgStruct {
     string constant;
 
     bool isVar() {
-        return type == TYPE_VAR;
+        return type == HeadArgStruct::TYPE_VAR;
     }
 
     bool isAgg() {
-        return type == TYPE_AGG;
+        return type == HeadArgStruct::TYPE_AGG;
     }
 
     bool isMath() {
-        return type == TYPE_MATH_EXPR;
+        return type == HeadArgStruct::TYPE_MATH_EXPR;
     }
 
     bool isConstant() {
-        return type = TYPE_CONST;
+        return type == HeadArgStruct::TYPE_CONST;
     }
 };
-struct ComparisonStruct {
+const string HeadArgStruct::TYPE_VAR = "variable";
+const string HeadArgStruct::TYPE_AGG = "aggregation";
+const string HeadArgStruct::TYPE_MATH_EXPR = "math_expr";
+const string HeadArgStruct::TYPE_CONST = "constant";
 
+
+struct ComparisonStruct {
+    static const string LSIDE;
+    static const string RSIDE;
+    static const string TYPE_VAR;
+    static const string TYPE_NUM;
+
+    string baseVar;
+    string baseVarType;
+    string baseVarSide;
+    string compareOp;
+    string otherSideType;
+    float numVal;
+    int otherSideAtomIndex;
+    int otherSideArgIndex;
 };
+const string ComparisonStruct::LSIDE = "l";
+const string ComparisonStruct::RSIDE = "r";
+const string ComparisonStruct::TYPE_VAR = "var";
+const string ComparisonStruct::TYPE_NUM = "num";
 
 
 void extractVarBodyIndex(vector<AtomMap>& bodyAtoms, map<string, map<int, vector<int>>>& varBodyIndex);
+
 void extractSelectionArgs(AtomMap& head, map<string, map<int, vector<int>>>& varBodyIndex, 
     map<int, HeadArgStruct>& headArgBodyIndex, vector<string>& headArgType, map<int, string>& headAggregation);
+
 void extractJoinArgs(map<string, map<int, vector<int>>>& varBodyIndex, map<string, map<int, vector<int>>>& joinArgs);
+
 void extractComparisonArgs(vector<CompareMap>& comparisons, map<string, map<int, vector<int>>>& varBodyIndex, 
     map<int, map<int, vector<ComparisonStruct>>>& comparisonArgs);
+
 void extractConstantArgs(vector<AtomMap>& bodyAtoms, map<int, map<int, string>>& constantArgs);
+
 void extractNegationArgs(vector<AtomMap>& bodyNegAtoms, map<string, map<int, vector<int>>>& varBodyIndex, 
     map<int, map<string, string>>& negArgs, map<int, map<int, pair<int, int>>>& antiJoinArgs);
+
 void atomAlias(vector<AtomMap>& bodyAtoms, vector<string>& alias);
+void negAtomAlias(vector<AtomMap>& negAtoms, vector<string>& negAlias);
 
 
 string SqlGenerator::generateRuleEval(RuleMap &rule, bool recursive) {
-    map<string, map<int, int>> bodyVarIndex;
-    // select_map
-    // join_map
-    // comparison_map
-    // constant_constraint_map
-    // negation_map
-    // body_atom_alias
-    // negation_atom_alias
-
+    //var index
+    map<string, map<int, vector<int>>> varBodyIndex;
+    extractVarBodyIndex(rule.body.atoms, varBodyIndex);
+    // select args
+    map<int, HeadArgStruct> headArgBodyIndex;
+    vector<string> headArgType;
+    map<int, string> headAggregation;
+    extractSelectionArgs(rule.head, varBodyIndex, headArgBodyIndex, headArgType, headAggregation);
+    // join args
+    map<string, map<int, vector<int>>> joinArgs;
+    extractJoinArgs(varBodyIndex, joinArgs);
+    // comparison args
+    map<int, map<int, vector<ComparisonStruct>>> comparisonArgs;
+    extractComparisonArgs(rule.body.compares, varBodyIndex, comparisonArgs);
+    // constant args
+    map<int, map<int, string>> constantArgs;
+    extractConstantArgs(rule.body.atoms, constantArgs);
+    // negation args
+    map<int, map<string, string>> negArgs;
+    map<int, map<int, pair<int, int>>> antiJoinArgs;
+    extractNegationArgs(rule.body.negations, varBodyIndex, negArgs, antiJoinArgs);
+    // body atom alias
+    vector<string> alias;
+    atomAlias(rule.body.atoms, alias);
+    // negation atom alias
+    vector<string> negAlias;
+    negAtomAlias(rule.body.negations, negAlias);
 
     string select = this->generateSelection();
     string from = this->generateFrom();
@@ -189,26 +241,54 @@ void extractSelectionArgs(AtomMap& head,
         AtomArg& headArg = head.argList[argIndex];
         if (headArg.type == "variable") {
             headArgType.emplace_back("var");
+            headArgBodyIndex[argIndex].type = HeadArgStruct::TYPE_VAR;
             int firstAtomPos = varBodyIndex[headArg.name].begin()->first;
             int firstArgPos = varBodyIndex[headArg.name].begin()->second[0];
-            headArgBodyIndex[argIndex] = std::make_pair(firstAtomPos, firstArgPos); 
+            headArgBodyIndex[argIndex].var = std::make_pair(firstAtomPos, firstArgPos); 
         } else if (headArg.type == "aggregation") {
             headArgType.emplace_back("agg");
+            headArgBodyIndex[argIndex].type = HeadArgStruct::TYPE_AGG;
             headAggregation[argIndex] = headArg.aggmap.aggOp;
             if (headArg.aggmap.aggArg.type == "attribute") {
-
+                headArgBodyIndex[argIndex].agg.type = AggStruct::TYPE_ATTR;
+                int firstAtomPos = varBodyIndex[headArg.aggmap.aggArg.attr].begin()->first;
+                int firstArgPos = varBodyIndex[headArg.aggmap.aggArg.attr].begin()->second[0];
+                headArgBodyIndex[argIndex].agg.attr = std::make_pair(firstAtomPos, firstArgPos);
             } else if (headArg.aggmap.aggArg.type == "math_expr") {
-
+                headArgBodyIndex[argIndex].agg.type = AggStruct::TYPE_MATH_EXPR;
+                int lhsFirstAtomPos = varBodyIndex[headArg.aggmap.aggArg.mathExpr.lhs].begin()->first;
+                int lhsFirstArgPos = varBodyIndex[headArg.aggmap.aggArg.mathExpr.lhs].begin()->second[0];
+                headArgBodyIndex[argIndex].agg.lhs = std::make_pair(lhsFirstAtomPos, lhsFirstArgPos);
+                int rhsFirstAtomPos = varBodyIndex[headArg.aggmap.aggArg.mathExpr.rhs].begin()->first;
+                int rhsFirstArgPos = varBodyIndex[headArg.aggmap.aggArg.mathExpr.rhs].begin()->second[0];
+                headArgBodyIndex[argIndex].agg.rhs = std::make_pair(rhsFirstAtomPos, rhsFirstArgPos);
+                headArgBodyIndex[argIndex].agg.mathOp = headArg.aggmap.aggArg.mathExpr.op;
             }
         } else if (headArg.type == "math_expr") {
-
+            headArgType.emplace_back("math_expr");
+            headArgBodyIndex[argIndex].type = HeadArgStruct::TYPE_MATH_EXPR;
+            int lhsFirstAtomPos = varBodyIndex[headArg.mathmap.lhs].begin()->first;
+            int lhsFirstArgPos = varBodyIndex[headArg.mathmap.lhs].begin()->second[0];
+            headArgBodyIndex[argIndex].math.lhs = std::make_pair(lhsFirstAtomPos, lhsFirstArgPos);
+            int rhsFirstAtomPos = varBodyIndex[headArg.mathmap.rhs].begin()->first;
+            int rhsFirstArgPos = varBodyIndex[headArg.mathmap.rhs].begin()->second[0];
+            headArgBodyIndex[argIndex].math.rhs = std::make_pair(rhsFirstAtomPos, rhsFirstArgPos);
+            headArgBodyIndex[argIndex].math.mathOp = headArg.mathmap.op;
         } else if (headArg.type == "constant") {
-
+            headArgType.emplace_back("constant");
+            headArgBodyIndex[argIndex].type = HeadArgStruct::TYPE_CONST;
+            headArgBodyIndex[argIndex].constant = headArg.name;
         }
     }
 }
 
 
+/**
+ * @brief 计算一个atom的哪个变量需要与其他atom的哪个变量连接
+ * 
+ * @param varBodyIndex 
+ * @param joinArgs 
+ */
 void extractJoinArgs(map<string, map<int, vector<int>>>& varBodyIndex, map<string, map<int, vector<int>>>& joinArgs) {
     //TODO 可能需要修正参数的顺序
     for (auto varIt = varBodyIndex.begin(); varIt != varBodyIndex.end(); varIt++) {
@@ -229,11 +309,51 @@ void extractJoinArgs(map<string, map<int, vector<int>>>& varBodyIndex, map<strin
     }
 }
 
+/**
+ * @brief 计算哪个atom的哪个变量需要与其他atom的哪些变量或常量比较
+ * 
+ * @param comparisons 
+ * @param varBodyIndex 
+ * @param comparisonArgs 
+ */
 void extractComparisonArgs(vector<CompareMap>& comparisons, 
     map<string, map<int, vector<int>>>& varBodyIndex, 
     map<int, map<int, vector<ComparisonStruct>>>& comparisonArgs) {
     //TODO 可能需要修正参数的顺序
+    for (CompareMap& cmp : comparisons) {
+        ComparisonStruct cs;
+        cs.compareOp = cmp.op;
 
+        string cmpArg;
+        string cmpArgType;
+        string baseVar;
+        if (cmp.lhsType == "var") {
+            cs.baseVarSide = ComparisonStruct::LSIDE;
+            baseVar = cmp.lhsText;
+            cmpArg = cmp.rhsText;
+            cmpArgType = cmp.rhsType;
+        } else {
+            cs.baseVarSide = ComparisonStruct::RSIDE;
+            baseVar = cmp.rhsText;
+            cmpArg = cmp.lhsText;
+            cmpArgType = cmp.lhsType;
+        }
+
+        if (cmpArgType == "num") {
+            cs.otherSideType = ComparisonStruct::TYPE_NUM;
+            cs.numVal = stof(cmpArg);
+        } else {
+            int otherSideFirstAtomIndex = varBodyIndex[cmpArg].begin()->first;
+            int otherSideFirstArgIndex = varBodyIndex[cmpArg].begin()->second[0];
+            cs.otherSideType = ComparisonStruct::TYPE_VAR;
+            cs.otherSideAtomIndex = otherSideFirstAtomIndex;
+            cs.otherSideArgIndex = otherSideFirstAtomIndex;
+        }
+
+        int baseSideFirstAtomIndex = varBodyIndex[baseVar].begin()->first;
+        int baseSideFirstArgIndex = varBodyIndex[baseVar].begin()->second[0];
+        comparisonArgs[baseSideFirstAtomIndex][baseSideFirstArgIndex].emplace_back(cs);
+    }
 }
 
 
@@ -308,5 +428,17 @@ void atomAlias(vector<AtomMap>& bodyAtoms, vector<string>& alias) {
             << "_"
             << atomIndex;
         alias.emplace_back(oss.str());
+    }
+}
+
+void negAtomAlias(vector<AtomMap>& negAtoms, vector<string>& negAlias) {
+    ostringstream oss;
+    for (int atomIndex = 0; atomIndex < negAtoms.size(); atomIndex++) {
+        oss.str("");
+        oss << "neg_"
+            << negAtoms[atomIndex].name[0]
+            << "_"
+            << atomIndex;
+        negAlias.emplace_back(oss.str());
     }
 }
