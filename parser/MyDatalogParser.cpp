@@ -450,7 +450,7 @@ MyDatalogParser::Datalog_relation_schemaContext* MyDatalogParser::datalog_relati
     match(MyDatalogParser::TOKEN_LEFT_PAREN);
     setState(78);
     antlrcpp::downCast<Datalog_relation_schemaContext *>(_localctx)->t1 = attribute();
-    schema.attributes.emplace_back(AtomArg(antlrcpp::downCast<Datalog_relation_schemaContext *>(_localctx)->t1->r.name, antlrcpp::downCast<Datalog_relation_schemaContext *>(_localctx)->t1->r.type, antlrcpp::downCast<Datalog_relation_schemaContext *>(_localctx)->t1->r.isKey));
+    schema.attributes.emplace_back(antlrcpp::downCast<Datalog_relation_schemaContext *>(_localctx)->t1->r);
     setState(86);
     _errHandler->sync(this);
     _la = _input->LA(1);
@@ -459,7 +459,7 @@ MyDatalogParser::Datalog_relation_schemaContext* MyDatalogParser::datalog_relati
       match(MyDatalogParser::TOKEN_COMMA);
       setState(81);
       antlrcpp::downCast<Datalog_relation_schemaContext *>(_localctx)->t2 = attribute();
-      schema.attributes.emplace_back(AtomArg(antlrcpp::downCast<Datalog_relation_schemaContext *>(_localctx)->t2->r.name, antlrcpp::downCast<Datalog_relation_schemaContext *>(_localctx)->t2->r.type, antlrcpp::downCast<Datalog_relation_schemaContext *>(_localctx)->t2->r.isKey));
+      schema.attributes.emplace_back(antlrcpp::downCast<Datalog_relation_schemaContext *>(_localctx)->t2->r);
       setState(88);
       _errHandler->sync(this);
       _la = _input->LA(1);
@@ -1566,18 +1566,18 @@ MyDatalogParser::Key_attributeContext* MyDatalogParser::key_attribute() {
   });
   try {
     enterOuterAlt(_localctx, 1);
-    AttributeMap attr_map{"", "", true};
+    Attribute attr{"", "", true};
     setState(280);
     match(MyDatalogParser::TOKEN_LEFT_BRACKET);
     setState(281);
     antlrcpp::downCast<Key_attributeContext *>(_localctx)->a1 = match(MyDatalogParser::TOKEN_ID);
-    attr_map.name = (antlrcpp::downCast<Key_attributeContext *>(_localctx)->a1 != nullptr ? antlrcpp::downCast<Key_attributeContext *>(_localctx)->a1->getText() : "");
+    attr.name = (antlrcpp::downCast<Key_attributeContext *>(_localctx)->a1 != nullptr ? antlrcpp::downCast<Key_attributeContext *>(_localctx)->a1->getText() : "");
     setState(283);
     match(MyDatalogParser::TOKEN_RIGHT_BRACKET);
     setState(284);
     antlrcpp::downCast<Key_attributeContext *>(_localctx)->d1 = data_type();
-    attr_map.type = antlrcpp::downCast<Key_attributeContext *>(_localctx)->d1->r;
-    antlrcpp::downCast<Key_attributeContext *>(_localctx)->r =  attr_map;
+    attr.type = antlrcpp::downCast<Key_attributeContext *>(_localctx)->d1->r;
+    antlrcpp::downCast<Key_attributeContext *>(_localctx)->r =  attr;
    
   }
   catch (RecognitionException &e) {
@@ -1622,14 +1622,14 @@ MyDatalogParser::Non_key_attributeContext* MyDatalogParser::non_key_attribute() 
   });
   try {
     enterOuterAlt(_localctx, 1);
-    AttributeMap attr_map{"", "", false};
+    Attribute attr{"", "", false};
     setState(289);
     antlrcpp::downCast<Non_key_attributeContext *>(_localctx)->a1 = match(MyDatalogParser::TOKEN_ID);
-    attr_map.name = (antlrcpp::downCast<Non_key_attributeContext *>(_localctx)->a1 != nullptr ? antlrcpp::downCast<Non_key_attributeContext *>(_localctx)->a1->getText() : "");
+    attr.name = (antlrcpp::downCast<Non_key_attributeContext *>(_localctx)->a1 != nullptr ? antlrcpp::downCast<Non_key_attributeContext *>(_localctx)->a1->getText() : "");
     setState(291);
     antlrcpp::downCast<Non_key_attributeContext *>(_localctx)->d1 = data_type();
-    attr_map.type = antlrcpp::downCast<Non_key_attributeContext *>(_localctx)->d1->r;
-    antlrcpp::downCast<Non_key_attributeContext *>(_localctx)->r =  attr_map;
+    attr.type = antlrcpp::downCast<Non_key_attributeContext *>(_localctx)->d1->r;
+    antlrcpp::downCast<Non_key_attributeContext *>(_localctx)->r =  attr;
    
   }
   catch (RecognitionException &e) {

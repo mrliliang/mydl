@@ -199,8 +199,8 @@ void DatalogProgram::iterateEdbIdb(vector<Schema> &relations)
     for (auto relation : relations)
     {
         string attrStr{""};
-        vector<AtomArg> &attrs = relation.attributes;
-        AtomArg &firstAttr = attrs[0];
+        vector<Attribute> &attrs = relation.attributes;
+        Attribute &firstAttr = attrs[0];
         attrStr.append(firstAttr.name)
             .append(" ")
             .append(firstAttr.type);

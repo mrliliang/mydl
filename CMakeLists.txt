@@ -29,6 +29,7 @@ INCLUDE_DIRECTORIES(
 # target_link_libraries(parser antlr4-runtime)
 
 add_executable(engine 
+    ./parser/basetype.cpp
     ./parser/MyDatalogLexer.cpp 
     ./parser/MyDatalogParser.cpp
     ./parser/DatalogProgram.cpp

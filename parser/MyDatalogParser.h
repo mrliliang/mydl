@@ -358,7 +358,7 @@ public:
 
   class  AttributeContext : public antlr4::ParserRuleContext {
   public:
-    AttributeMap r;
+    Attribute r;
     MyDatalogParser::Non_key_attributeContext *a1 = nullptr;
     MyDatalogParser::Key_attributeContext *a2 = nullptr;
     AttributeContext(antlr4::ParserRuleContext *parent, size_t invokingState);
@@ -373,7 +373,7 @@ public:
 
   class  Key_attributeContext : public antlr4::ParserRuleContext {
   public:
-    AttributeMap r;
+    Attribute r;
     antlr4::Token *a1 = nullptr;
     MyDatalogParser::Data_typeContext *d1 = nullptr;
     Key_attributeContext(antlr4::ParserRuleContext *parent, size_t invokingState);
@@ -390,7 +390,7 @@ public:
 
   class  Non_key_attributeContext : public antlr4::ParserRuleContext {
   public:
-    AttributeMap r;
+    Attribute r;
     antlr4::Token *a1 = nullptr;
     MyDatalogParser::Data_typeContext *d1 = nullptr;
     Non_key_attributeContext(antlr4::ParserRuleContext *parent, size_t invokingState);

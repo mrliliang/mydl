@@ -35,9 +35,11 @@ datalog_relation_schema returns[Schema r] :
     {Schema schema;}
     relation_name = TOKEN_ID {schema.name = $relation_name.text;}
     TOKEN_LEFT_PAREN
-    t1 = attribute {schema.attributes.emplace_back(AtomArg($t1.r.name, $t1.r.type, $t1.r.isKey));}
+    // t1 = attribute {schema.attributes.emplace_back(AtomArg($t1.r.name, $t1.r.type, $t1.r.isKey));}
+    t1 = attribute {schema.attributes.emplace_back($t1.r);}
     (TOKEN_COMMA
-    t2 = attribute {schema.attributes.emplace_back(AtomArg($t2.r.name, $t2.r.type, $t2.r.isKey));})*
+    // t2 = attribute {schema.attributes.emplace_back(AtomArg($t2.r.name, $t2.r.type, $t2.r.isKey));})*
+    t2 = attribute {schema.attributes.emplace_back($t2.r);})*
      TOKEN_RIGHT_PAREN
     {$r = schema;}
 ;
@@ -144,25 +146,25 @@ aggregation_expr returns [AggMap r] :
     {$r = agg_map;}
 ;
 
-attribute returns [AttributeMap r] : 
+attribute returns [Attribute r] : 
     a1 = non_key_attribute {$r = $a1.r;} | 
     a2 = key_attribute {$r = $a2.r;} 
 ;
 
-key_attribute returns [AttributeMap r] : 
-    {AttributeMap attr_map{"", "", true};}
+key_attribute returns [Attribute r] : 
+    {Attribute attr{"", "", true};}
     TOKEN_LEFT_BRACKET
-    a1 = TOKEN_ID {attr_map.name = $a1.text;}
+    a1 = TOKEN_ID {attr.name = $a1.text;}
     TOKEN_RIGHT_BRACKET
-    d1 = data_type {attr_map.type = $d1.r;}
-    {$r = attr_map;}
+    d1 = data_type {attr.type = $d1.r;}
+    {$r = attr;}
 ;
 
-non_key_attribute returns [AttributeMap r] : 
-    {AttributeMap attr_map{"", "", false};}
-    a1 = TOKEN_ID {attr_map.name = $a1.text;}
-    d1 = data_type {attr_map.type = $d1.r;}
-    {$r = attr_map;}
+non_key_attribute returns [Attribute r] : 
+    {Attribute attr{"", "", false};}
+    a1 = TOKEN_ID {attr.name = $a1.text;}
+    d1 = data_type {attr.type = $d1.r;}
+    {$r = attr;}
 ;
 
 compare_op returns [string r] : 

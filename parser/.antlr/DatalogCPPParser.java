@@ -1,4 +1,4 @@
-// Generated from /Users/liliang/VSCode/mydatalog/parser/MyDatalog.g4 by ANTLR 4.9.2
+// Generated from /Users/liliang/VSCode/mydatalog/parser/DatalogCPP.g4 by ANTLR 4.9.2
 
 
 
@@ -12,7 +12,7 @@ import java.util.Iterator;
 import java.util.ArrayList;
 
 @SuppressWarnings({"all", "warnings", "unchecked", "unused", "cast"})
-public class MyDatalogParser extends Parser {
+public class DatalogCPPParser extends Parser {
 	static { RuntimeMetaData.checkVersion("4.9.2", RuntimeMetaData.VERSION); }
 
 	protected static final DFA[] _decisionToDFA;
@@ -107,7 +107,7 @@ public class MyDatalogParser extends Parser {
 	}
 
 	@Override
-	public String getGrammarFileName() { return "MyDatalog.g4"; }
+	public String getGrammarFileName() { return "DatalogCPP.g4"; }
 
 	@Override
 	public String[] getRuleNames() { return ruleNames; }
@@ -118,17 +118,17 @@ public class MyDatalogParser extends Parser {
 	@Override
 	public ATN getATN() { return _ATN; }
 
-	public MyDatalogParser(TokenStream input) {
+	public DatalogCPPParser(TokenStream input) {
 		super(input);
 		_interp = new ParserATNSimulator(this,_ATN,_decisionToDFA,_sharedContextCache);
 	}
 
 	public static class Datalog_edb_declareContext extends ParserRuleContext {
-		public vector<Schema> r;
+		public vector<shared_ptr<Schema>> r;
 		public Datalog_relation_schemaContext schema1;
 		public Datalog_relation_schemaContext schema2;
-		public TerminalNode TOKEN_EDB() { return getToken(MyDatalogParser.TOKEN_EDB, 0); }
-		public TerminalNode TOKEN_COLON() { return getToken(MyDatalogParser.TOKEN_COLON, 0); }
+		public TerminalNode TOKEN_EDB() { return getToken(DatalogCPPParser.TOKEN_EDB, 0); }
+		public TerminalNode TOKEN_COLON() { return getToken(DatalogCPPParser.TOKEN_COLON, 0); }
 		public List<Datalog_relation_schemaContext> datalog_relation_schema() {
 			return getRuleContexts(Datalog_relation_schemaContext.class);
 		}
@@ -148,7 +148,7 @@ public class MyDatalogParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			vector<Schema> edb_list;
+			vector<shared_ptr<Schema>> edb_list;
 			setState(45);
 			match(TOKEN_EDB);
 			setState(46);
@@ -186,11 +186,11 @@ public class MyDatalogParser extends Parser {
 	}
 
 	public static class Datalog_idb_declareContext extends ParserRuleContext {
-		public vector<Schema> r;
+		public vector<shared_ptr<Schema>> r;
 		public Datalog_relation_schemaContext schema1;
 		public Datalog_relation_schemaContext schema2;
-		public TerminalNode TOKEN_IDB() { return getToken(MyDatalogParser.TOKEN_IDB, 0); }
-		public TerminalNode TOKEN_COLON() { return getToken(MyDatalogParser.TOKEN_COLON, 0); }
+		public TerminalNode TOKEN_IDB() { return getToken(DatalogCPPParser.TOKEN_IDB, 0); }
+		public TerminalNode TOKEN_COLON() { return getToken(DatalogCPPParser.TOKEN_COLON, 0); }
 		public List<Datalog_relation_schemaContext> datalog_relation_schema() {
 			return getRuleContexts(Datalog_relation_schemaContext.class);
 		}
@@ -210,7 +210,7 @@ public class MyDatalogParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			vector<Schema> idb_list;
+			vector<shared_ptr<Schema>> idb_list;
 			setState(60);
 			match(TOKEN_IDB);
 			setState(61);
@@ -248,22 +248,22 @@ public class MyDatalogParser extends Parser {
 	}
 
 	public static class Datalog_relation_schemaContext extends ParserRuleContext {
-		public Schema r;
+		public shared_ptr<Schema> r;
 		public Token relation_name;
 		public AttributeContext t1;
 		public AttributeContext t2;
-		public TerminalNode TOKEN_LEFT_PAREN() { return getToken(MyDatalogParser.TOKEN_LEFT_PAREN, 0); }
-		public TerminalNode TOKEN_RIGHT_PAREN() { return getToken(MyDatalogParser.TOKEN_RIGHT_PAREN, 0); }
-		public TerminalNode TOKEN_ID() { return getToken(MyDatalogParser.TOKEN_ID, 0); }
+		public TerminalNode TOKEN_LEFT_PAREN() { return getToken(DatalogCPPParser.TOKEN_LEFT_PAREN, 0); }
+		public TerminalNode TOKEN_RIGHT_PAREN() { return getToken(DatalogCPPParser.TOKEN_RIGHT_PAREN, 0); }
+		public TerminalNode TOKEN_ID() { return getToken(DatalogCPPParser.TOKEN_ID, 0); }
 		public List<AttributeContext> attribute() {
 			return getRuleContexts(AttributeContext.class);
 		}
 		public AttributeContext attribute(int i) {
 			return getRuleContext(AttributeContext.class,i);
 		}
-		public List<TerminalNode> TOKEN_COMMA() { return getTokens(MyDatalogParser.TOKEN_COMMA); }
+		public List<TerminalNode> TOKEN_COMMA() { return getTokens(DatalogCPPParser.TOKEN_COMMA); }
 		public TerminalNode TOKEN_COMMA(int i) {
-			return getToken(MyDatalogParser.TOKEN_COMMA, i);
+			return getToken(DatalogCPPParser.TOKEN_COMMA, i);
 		}
 		public Datalog_relation_schemaContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
@@ -278,15 +278,15 @@ public class MyDatalogParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			Schema schema;
+			shared_ptr<Schema> schema = make_shared<Schema>();
 			setState(75);
 			((Datalog_relation_schemaContext)_localctx).relation_name = match(TOKEN_ID);
-			schema.name = (((Datalog_relation_schemaContext)_localctx).relation_name!=null?((Datalog_relation_schemaContext)_localctx).relation_name.getText():null);
+			schema->name = (((Datalog_relation_schemaContext)_localctx).relation_name!=null?((Datalog_relation_schemaContext)_localctx).relation_name.getText():null);
 			setState(77);
 			match(TOKEN_LEFT_PAREN);
 			setState(78);
 			((Datalog_relation_schemaContext)_localctx).t1 = attribute();
-			schema.attributes.emplace_back(((Datalog_relation_schemaContext)_localctx).t1.r);
+			schema->attributes.emplace_back(make_shared<AtomArg>(((Datalog_relation_schemaContext)_localctx).t1.r->name, ((Datalog_relation_schemaContext)_localctx).t1.r->type, ((Datalog_relation_schemaContext)_localctx).t1.r->isKey));
 			setState(86);
 			_errHandler.sync(this);
 			_la = _input.LA(1);
@@ -297,7 +297,7 @@ public class MyDatalogParser extends Parser {
 				match(TOKEN_COMMA);
 				setState(81);
 				((Datalog_relation_schemaContext)_localctx).t2 = attribute();
-				schema.attributes.emplace_back(((Datalog_relation_schemaContext)_localctx).t2.r);
+				schema->attributes.emplace_back(make_shared<AtomArg>(((Datalog_relation_schemaContext)_localctx).t2.r->name, ((Datalog_relation_schemaContext)_localctx).t2.r->type, ((Datalog_relation_schemaContext)_localctx).t2.r->isKey));
 				}
 				}
 				setState(88);
@@ -321,11 +321,11 @@ public class MyDatalogParser extends Parser {
 	}
 
 	public static class Datalog_rule_declareContext extends ParserRuleContext {
-		public vector<RuleMap> r;
+		public vector<shared_ptr<RuleMap>> r;
 		public Datalog_programContext dp;
-		public TerminalNode TOKEN_RULE() { return getToken(MyDatalogParser.TOKEN_RULE, 0); }
-		public TerminalNode TOKEN_COLON() { return getToken(MyDatalogParser.TOKEN_COLON, 0); }
-		public TerminalNode EOF() { return getToken(MyDatalogParser.EOF, 0); }
+		public TerminalNode TOKEN_RULE() { return getToken(DatalogCPPParser.TOKEN_RULE, 0); }
+		public TerminalNode TOKEN_COLON() { return getToken(DatalogCPPParser.TOKEN_COLON, 0); }
+		public TerminalNode EOF() { return getToken(DatalogCPPParser.EOF, 0); }
 		public Datalog_programContext datalog_program() {
 			return getRuleContext(Datalog_programContext.class,0);
 		}
@@ -364,7 +364,7 @@ public class MyDatalogParser extends Parser {
 	}
 
 	public static class Datalog_programContext extends ParserRuleContext {
-		public vector<RuleMap> r;
+		public vector<shared_ptr<RuleMap>> r;
 		public Datalog_ruleContext r1;
 		public Datalog_ruleContext r2;
 		public List<Datalog_ruleContext> datalog_rule() {
@@ -386,7 +386,7 @@ public class MyDatalogParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			vector<RuleMap> rule_list;
+			vector<shared_ptr<RuleMap>> rule_list;
 			setState(99);
 			((Datalog_programContext)_localctx).r1 = datalog_rule();
 			rule_list.emplace_back(((Datalog_programContext)_localctx).r1.r);
@@ -420,17 +420,17 @@ public class MyDatalogParser extends Parser {
 	}
 
 	public static class Datalog_ruleContext extends ParserRuleContext {
-		public RuleMap r;
+		public shared_ptr<RuleMap> r;
 		public HeadContext h;
 		public BodyContext b;
-		public TerminalNode TOKEN_BODY_HEAD_SEP() { return getToken(MyDatalogParser.TOKEN_BODY_HEAD_SEP, 0); }
-		public TerminalNode TOKEN_DOT() { return getToken(MyDatalogParser.TOKEN_DOT, 0); }
+		public TerminalNode TOKEN_BODY_HEAD_SEP() { return getToken(DatalogCPPParser.TOKEN_BODY_HEAD_SEP, 0); }
+		public TerminalNode TOKEN_DOT() { return getToken(DatalogCPPParser.TOKEN_DOT, 0); }
 		public HeadContext head() {
 			return getRuleContext(HeadContext.class,0);
 		}
-		public TerminalNode TOKEN_NON_DEDUP() { return getToken(MyDatalogParser.TOKEN_NON_DEDUP, 0); }
-		public TerminalNode TOKEN_NON_SET_DIFF() { return getToken(MyDatalogParser.TOKEN_NON_SET_DIFF, 0); }
-		public TerminalNode TOKEN_DEDUP_ONLY() { return getToken(MyDatalogParser.TOKEN_DEDUP_ONLY, 0); }
+		public TerminalNode TOKEN_NON_DEDUP() { return getToken(DatalogCPPParser.TOKEN_NON_DEDUP, 0); }
+		public TerminalNode TOKEN_NON_SET_DIFF() { return getToken(DatalogCPPParser.TOKEN_NON_SET_DIFF, 0); }
+		public TerminalNode TOKEN_DEDUP_ONLY() { return getToken(DatalogCPPParser.TOKEN_DEDUP_ONLY, 0); }
 		public BodyContext body() {
 			return getRuleContext(BodyContext.class,0);
 		}
@@ -447,7 +447,7 @@ public class MyDatalogParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			RuleMap rule_map;
+			shared_ptr<RuleMap> rule_map = make_shared<RuleMap>();
 			setState(114);
 			_errHandler.sync(this);
 			_la = _input.LA(1);
@@ -455,7 +455,7 @@ public class MyDatalogParser extends Parser {
 				{
 				setState(112);
 				match(TOKEN_NON_DEDUP);
-				rule_map.nonDedup = true;
+				rule_map->nonDedup = true;
 				}
 			}
 
@@ -466,7 +466,7 @@ public class MyDatalogParser extends Parser {
 				{
 				setState(116);
 				match(TOKEN_NON_SET_DIFF);
-				rule_map.nonSetDiff = true;
+				rule_map->nonSetDiff = true;
 				}
 			}
 
@@ -477,13 +477,13 @@ public class MyDatalogParser extends Parser {
 				{
 				setState(120);
 				match(TOKEN_DEDUP_ONLY);
-				rule_map.dedupOnly = true;
+				rule_map->dedupOnly = true;
 				}
 			}
 
 			setState(124);
 			((Datalog_ruleContext)_localctx).h = head();
-			rule_map.head = ((Datalog_ruleContext)_localctx).h.r;
+			rule_map->head = ((Datalog_ruleContext)_localctx).h.r;
 			setState(126);
 			match(TOKEN_BODY_HEAD_SEP);
 			setState(130);
@@ -493,7 +493,7 @@ public class MyDatalogParser extends Parser {
 				{
 				setState(127);
 				((Datalog_ruleContext)_localctx).b = body();
-				rule_map.body = ((Datalog_ruleContext)_localctx).b.r;
+				rule_map->body = ((Datalog_ruleContext)_localctx).b.r;
 				}
 			}
 
@@ -514,7 +514,7 @@ public class MyDatalogParser extends Parser {
 	}
 
 	public static class HeadContext extends ParserRuleContext {
-		public AtomMap r;
+		public shared_ptr<AtomMap> r;
 		public AtomContext a;
 		public AtomContext atom() {
 			return getRuleContext(AtomContext.class,0);
@@ -548,7 +548,7 @@ public class MyDatalogParser extends Parser {
 	}
 
 	public static class BodyContext extends ParserRuleContext {
-		public BodyMap r;
+		public shared_ptr<BodyMap> r;
 		public AtomContext b1;
 		public Compare_exprContext b2;
 		public AssignContext b3;
@@ -557,9 +557,9 @@ public class MyDatalogParser extends Parser {
 		public Compare_exprContext b6;
 		public AssignContext b7;
 		public NegationContext b8;
-		public List<TerminalNode> TOKEN_COMMA() { return getTokens(MyDatalogParser.TOKEN_COMMA); }
+		public List<TerminalNode> TOKEN_COMMA() { return getTokens(DatalogCPPParser.TOKEN_COMMA); }
 		public TerminalNode TOKEN_COMMA(int i) {
-			return getToken(MyDatalogParser.TOKEN_COMMA, i);
+			return getToken(DatalogCPPParser.TOKEN_COMMA, i);
 		}
 		public List<AtomContext> atom() {
 			return getRuleContexts(AtomContext.class);
@@ -598,7 +598,7 @@ public class MyDatalogParser extends Parser {
 			int _alt;
 			enterOuterAlt(_localctx, 1);
 			{
-			BodyMap body_map;
+			shared_ptr<BodyMap> body_map = make_shared<BodyMap>();
 			setState(157);
 			_errHandler.sync(this);
 			_alt = getInterpreter().adaptivePredict(_input,9,_ctx);
@@ -613,28 +613,28 @@ public class MyDatalogParser extends Parser {
 						{
 						setState(139);
 						((BodyContext)_localctx).b1 = atom();
-						body_map.atoms.emplace_back(((BodyContext)_localctx).b1.r);
+						body_map->atoms.emplace_back(((BodyContext)_localctx).b1.r);
 						}
 						break;
 					case 2:
 						{
 						setState(142);
 						((BodyContext)_localctx).b2 = compare_expr();
-						body_map.compares.emplace_back(((BodyContext)_localctx).b2.r);
+						body_map->compares.emplace_back(((BodyContext)_localctx).b2.r);
 						}
 						break;
 					case 3:
 						{
 						setState(145);
 						((BodyContext)_localctx).b3 = assign();
-						body_map.assigns.emplace_back(((BodyContext)_localctx).b3.r);
+						body_map->assigns.emplace_back(((BodyContext)_localctx).b3.r);
 						}
 						break;
 					case 4:
 						{
 						setState(148);
 						((BodyContext)_localctx).b4 = negation();
-						body_map.negations.emplace_back(((BodyContext)_localctx).b4.r);
+						body_map->negations.emplace_back(((BodyContext)_localctx).b4.r);
 						}
 						break;
 					}
@@ -654,28 +654,28 @@ public class MyDatalogParser extends Parser {
 				{
 				setState(160);
 				((BodyContext)_localctx).b5 = atom();
-				body_map.atoms.emplace_back(((BodyContext)_localctx).b5.r);
+				body_map->atoms.emplace_back(((BodyContext)_localctx).b5.r);
 				}
 				break;
 			case 2:
 				{
 				setState(163);
 				((BodyContext)_localctx).b6 = compare_expr();
-				body_map.compares.emplace_back(((BodyContext)_localctx).b6.r);
+				body_map->compares.emplace_back(((BodyContext)_localctx).b6.r);
 				}
 				break;
 			case 3:
 				{
 				setState(166);
 				((BodyContext)_localctx).b7 = assign();
-				body_map.assigns.emplace_back(((BodyContext)_localctx).b7.r);
+				body_map->assigns.emplace_back(((BodyContext)_localctx).b7.r);
 				}
 				break;
 			case 4:
 				{
 				setState(169);
 				((BodyContext)_localctx).b8 = negation();
-				body_map.negations.emplace_back(((BodyContext)_localctx).b8.r);
+				body_map->negations.emplace_back(((BodyContext)_localctx).b8.r);
 				}
 				break;
 			}
@@ -694,9 +694,9 @@ public class MyDatalogParser extends Parser {
 	}
 
 	public static class NegationContext extends ParserRuleContext {
-		public AtomMap r;
+		public shared_ptr<AtomMap> r;
 		public AtomContext a;
-		public TerminalNode TOKEN_NOT() { return getToken(MyDatalogParser.TOKEN_NOT, 0); }
+		public TerminalNode TOKEN_NOT() { return getToken(DatalogCPPParser.TOKEN_NOT, 0); }
 		public AtomContext atom() {
 			return getRuleContext(AtomContext.class,0);
 		}
@@ -731,7 +731,7 @@ public class MyDatalogParser extends Parser {
 	}
 
 	public static class AtomContext extends ParserRuleContext {
-		public AtomMap r;
+		public shared_ptr<AtomMap> r;
 		public Token a1;
 		public Token a2;
 		public Aggregation_exprContext a3;
@@ -743,11 +743,11 @@ public class MyDatalogParser extends Parser {
 		public Token a9;
 		public ConstantContext a10;
 		public Math_exprContext a11;
-		public TerminalNode TOKEN_LEFT_PAREN() { return getToken(MyDatalogParser.TOKEN_LEFT_PAREN, 0); }
-		public TerminalNode TOKEN_RIGHT_PAREN() { return getToken(MyDatalogParser.TOKEN_RIGHT_PAREN, 0); }
-		public List<TerminalNode> TOKEN_ID() { return getTokens(MyDatalogParser.TOKEN_ID); }
+		public TerminalNode TOKEN_LEFT_PAREN() { return getToken(DatalogCPPParser.TOKEN_LEFT_PAREN, 0); }
+		public TerminalNode TOKEN_RIGHT_PAREN() { return getToken(DatalogCPPParser.TOKEN_RIGHT_PAREN, 0); }
+		public List<TerminalNode> TOKEN_ID() { return getTokens(DatalogCPPParser.TOKEN_ID); }
 		public TerminalNode TOKEN_ID(int i) {
-			return getToken(MyDatalogParser.TOKEN_ID, i);
+			return getToken(DatalogCPPParser.TOKEN_ID, i);
 		}
 		public List<Aggregation_exprContext> aggregation_expr() {
 			return getRuleContexts(Aggregation_exprContext.class);
@@ -755,9 +755,9 @@ public class MyDatalogParser extends Parser {
 		public Aggregation_exprContext aggregation_expr(int i) {
 			return getRuleContext(Aggregation_exprContext.class,i);
 		}
-		public List<TerminalNode> TOKEN_ANY() { return getTokens(MyDatalogParser.TOKEN_ANY); }
+		public List<TerminalNode> TOKEN_ANY() { return getTokens(DatalogCPPParser.TOKEN_ANY); }
 		public TerminalNode TOKEN_ANY(int i) {
-			return getToken(MyDatalogParser.TOKEN_ANY, i);
+			return getToken(DatalogCPPParser.TOKEN_ANY, i);
 		}
 		public List<ConstantContext> constant() {
 			return getRuleContexts(ConstantContext.class);
@@ -771,9 +771,9 @@ public class MyDatalogParser extends Parser {
 		public Math_exprContext math_expr(int i) {
 			return getRuleContext(Math_exprContext.class,i);
 		}
-		public List<TerminalNode> TOKEN_COMMA() { return getTokens(MyDatalogParser.TOKEN_COMMA); }
+		public List<TerminalNode> TOKEN_COMMA() { return getTokens(DatalogCPPParser.TOKEN_COMMA); }
 		public TerminalNode TOKEN_COMMA(int i) {
-			return getToken(MyDatalogParser.TOKEN_COMMA, i);
+			return getToken(DatalogCPPParser.TOKEN_COMMA, i);
 		}
 		public AtomContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
@@ -788,10 +788,10 @@ public class MyDatalogParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			AtomMap atom_map;
+			shared_ptr<AtomMap> atom_map = make_shared<AtomMap>();
 			setState(181);
 			((AtomContext)_localctx).a1 = match(TOKEN_ID);
-			atom_map.name = (((AtomContext)_localctx).a1!=null?((AtomContext)_localctx).a1.getText():null);
+			atom_map->name = (((AtomContext)_localctx).a1!=null?((AtomContext)_localctx).a1.getText():null);
 			setState(183);
 			match(TOKEN_LEFT_PAREN);
 			setState(197);
@@ -801,35 +801,35 @@ public class MyDatalogParser extends Parser {
 				{
 				setState(184);
 				((AtomContext)_localctx).a2 = match(TOKEN_ID);
-				atom_map.argList.emplace_back(AtomArg((((AtomContext)_localctx).a2!=null?((AtomContext)_localctx).a2.getText():null), "variable", false));
+				atom_map->argList.emplace_back(make_shared<AtomArg>((((AtomContext)_localctx).a2!=null?((AtomContext)_localctx).a2.getText():null), "variable", false));
 				}
 				break;
 			case 2:
 				{
 				setState(186);
 				((AtomContext)_localctx).a3 = aggregation_expr();
-				atom_map.argList.emplace_back(AtomArg(((AtomContext)_localctx).a3.r, "aggregation", false));
+				atom_map->argList.emplace_back(make_shared<AtomArg>((((AtomContext)_localctx).a3!=null?_input.getText(((AtomContext)_localctx).a3.start,((AtomContext)_localctx).a3.stop):null), "aggregation", false));
 				}
 				break;
 			case 3:
 				{
 				setState(189);
 				((AtomContext)_localctx).a4 = match(TOKEN_ANY);
-				atom_map.argList.emplace_back(AtomArg((((AtomContext)_localctx).a4!=null?((AtomContext)_localctx).a4.getText():null), "any", false));
+				atom_map->argList.emplace_back(make_shared<AtomArg>((((AtomContext)_localctx).a4!=null?((AtomContext)_localctx).a4.getText():null), "any", false));
 				}
 				break;
 			case 4:
 				{
 				setState(191);
 				((AtomContext)_localctx).a5 = constant();
-				atom_map.argList.emplace_back(AtomArg((((AtomContext)_localctx).a5!=null?_input.getText(((AtomContext)_localctx).a5.start,((AtomContext)_localctx).a5.stop):null), "constant", false));
+				atom_map->argList.emplace_back(make_shared<AtomArg>((((AtomContext)_localctx).a5!=null?_input.getText(((AtomContext)_localctx).a5.start,((AtomContext)_localctx).a5.stop):null), "constant", false));
 				}
 				break;
 			case 5:
 				{
 				setState(194);
 				((AtomContext)_localctx).a6 = math_expr();
-				atom_map.argList.emplace_back(AtomArg(((AtomContext)_localctx).a6.r, "math_expr", false));
+				atom_map->argList.emplace_back(make_shared<AtomArg>((((AtomContext)_localctx).a6!=null?_input.getText(((AtomContext)_localctx).a6.start,((AtomContext)_localctx).a6.stop):null), "math_expr", false));
 				}
 				break;
 			}
@@ -848,35 +848,35 @@ public class MyDatalogParser extends Parser {
 					{
 					setState(200);
 					((AtomContext)_localctx).a7 = match(TOKEN_ID);
-					atom_map.argList.emplace_back(AtomArg((((AtomContext)_localctx).a7!=null?((AtomContext)_localctx).a7.getText():null), "variable", false));
+					atom_map->argList.emplace_back(make_shared<AtomArg>((((AtomContext)_localctx).a7!=null?((AtomContext)_localctx).a7.getText():null), "variable", false));
 					}
 					break;
 				case 2:
 					{
 					setState(202);
 					((AtomContext)_localctx).a8 = aggregation_expr();
-					atom_map.argList.emplace_back(AtomArg(((AtomContext)_localctx).a8.r, "aggregation", false));
+					atom_map->argList.emplace_back(make_shared<AtomArg>((((AtomContext)_localctx).a8!=null?_input.getText(((AtomContext)_localctx).a8.start,((AtomContext)_localctx).a8.stop):null), "aggregation", false));
 					}
 					break;
 				case 3:
 					{
 					setState(205);
 					((AtomContext)_localctx).a9 = match(TOKEN_ANY);
-					atom_map.argList.emplace_back(AtomArg((((AtomContext)_localctx).a9!=null?((AtomContext)_localctx).a9.getText():null), "any", false));
+					atom_map->argList.emplace_back(make_shared<AtomArg>((((AtomContext)_localctx).a9!=null?((AtomContext)_localctx).a9.getText():null), "any", false));
 					}
 					break;
 				case 4:
 					{
 					setState(207);
 					((AtomContext)_localctx).a10 = constant();
-					atom_map.argList.emplace_back(AtomArg((((AtomContext)_localctx).a10!=null?_input.getText(((AtomContext)_localctx).a10.start,((AtomContext)_localctx).a10.stop):null), "constant", false));
+					atom_map->argList.emplace_back(make_shared<AtomArg>((((AtomContext)_localctx).a10!=null?_input.getText(((AtomContext)_localctx).a10.start,((AtomContext)_localctx).a10.stop):null), "constant", false));
 					}
 					break;
 				case 5:
 					{
 					setState(210);
 					((AtomContext)_localctx).a11 = math_expr();
-					atom_map.argList.emplace_back(AtomArg(((AtomContext)_localctx).a11.r, "math_expr", false));
+					atom_map->argList.emplace_back(make_shared<AtomArg>((((AtomContext)_localctx).a11!=null?_input.getText(((AtomContext)_localctx).a11.start,((AtomContext)_localctx).a11.stop):null), "math_expr", false));
 					}
 					break;
 				}
@@ -903,11 +903,11 @@ public class MyDatalogParser extends Parser {
 	}
 
 	public static class AssignContext extends ParserRuleContext {
-		public AssignMap r;
+		public shared_ptr<AssignMap> r;
 		public Token a1;
 		public Math_exprContext a2;
-		public TerminalNode TOKEN_EQUALS() { return getToken(MyDatalogParser.TOKEN_EQUALS, 0); }
-		public TerminalNode TOKEN_ID() { return getToken(MyDatalogParser.TOKEN_ID, 0); }
+		public TerminalNode TOKEN_EQUALS() { return getToken(DatalogCPPParser.TOKEN_EQUALS, 0); }
+		public TerminalNode TOKEN_ID() { return getToken(DatalogCPPParser.TOKEN_ID, 0); }
 		public Math_exprContext math_expr() {
 			return getRuleContext(Math_exprContext.class,0);
 		}
@@ -923,15 +923,15 @@ public class MyDatalogParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			AssignMap assign_map;
+			shared_ptr<AssignMap> assign_map = make_shared<AssignMap>();
 			setState(224);
 			((AssignContext)_localctx).a1 = match(TOKEN_ID);
-			assign_map.lhs = (((AssignContext)_localctx).a1!=null?((AssignContext)_localctx).a1.getText():null);
+			assign_map->lhs = (((AssignContext)_localctx).a1!=null?((AssignContext)_localctx).a1.getText():null);
 			setState(226);
 			match(TOKEN_EQUALS);
 			setState(227);
 			((AssignContext)_localctx).a2 = math_expr();
-			assign_map.rhs = ((AssignContext)_localctx).a2.r;
+			assign_map->rhs = ((AssignContext)_localctx).a2.r;
 			((AssignContext)_localctx).r =  assign_map;
 			}
 		}
@@ -947,13 +947,13 @@ public class MyDatalogParser extends Parser {
 	}
 
 	public static class Math_exprContext extends ParserRuleContext {
-		public MathMap r;
+		public shared_ptr<MathMap> r;
 		public Token m1;
 		public Math_opContext m2;
 		public Token m3;
-		public List<TerminalNode> TOKEN_ID() { return getTokens(MyDatalogParser.TOKEN_ID); }
+		public List<TerminalNode> TOKEN_ID() { return getTokens(DatalogCPPParser.TOKEN_ID); }
 		public TerminalNode TOKEN_ID(int i) {
-			return getToken(MyDatalogParser.TOKEN_ID, i);
+			return getToken(DatalogCPPParser.TOKEN_ID, i);
 		}
 		public Math_opContext math_op() {
 			return getRuleContext(Math_opContext.class,0);
@@ -970,16 +970,16 @@ public class MyDatalogParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			MathMap math_map;
+			shared_ptr<MathMap> math_map = make_shared<MathMap>();
 			setState(232);
 			((Math_exprContext)_localctx).m1 = match(TOKEN_ID);
-			math_map.lhs = (((Math_exprContext)_localctx).m1!=null?((Math_exprContext)_localctx).m1.getText():null);
+			math_map->lhs = (((Math_exprContext)_localctx).m1!=null?((Math_exprContext)_localctx).m1.getText():null);
 			setState(234);
 			((Math_exprContext)_localctx).m2 = math_op();
-			math_map.op = (((Math_exprContext)_localctx).m2!=null?_input.getText(((Math_exprContext)_localctx).m2.start,((Math_exprContext)_localctx).m2.stop):null);
+			math_map->op = (((Math_exprContext)_localctx).m2!=null?_input.getText(((Math_exprContext)_localctx).m2.start,((Math_exprContext)_localctx).m2.stop):null);
 			setState(236);
 			((Math_exprContext)_localctx).m3 = match(TOKEN_ID);
-			math_map.rhs = (((Math_exprContext)_localctx).m3!=null?((Math_exprContext)_localctx).m3.getText():null);
+			math_map->rhs = (((Math_exprContext)_localctx).m3!=null?((Math_exprContext)_localctx).m3.getText():null);
 			((Math_exprContext)_localctx).r =  math_map;
 			}
 		}
@@ -995,7 +995,7 @@ public class MyDatalogParser extends Parser {
 	}
 
 	public static class Compare_exprContext extends ParserRuleContext {
-		public CompareMap r;
+		public shared_ptr<CompareMap> r;
 		public Token c1;
 		public Token c2;
 		public Compare_opContext op;
@@ -1004,13 +1004,13 @@ public class MyDatalogParser extends Parser {
 		public Compare_opContext compare_op() {
 			return getRuleContext(Compare_opContext.class,0);
 		}
-		public List<TerminalNode> TOKEN_ID() { return getTokens(MyDatalogParser.TOKEN_ID); }
+		public List<TerminalNode> TOKEN_ID() { return getTokens(DatalogCPPParser.TOKEN_ID); }
 		public TerminalNode TOKEN_ID(int i) {
-			return getToken(MyDatalogParser.TOKEN_ID, i);
+			return getToken(DatalogCPPParser.TOKEN_ID, i);
 		}
-		public List<TerminalNode> TOKEN_INTEGER() { return getTokens(MyDatalogParser.TOKEN_INTEGER); }
+		public List<TerminalNode> TOKEN_INTEGER() { return getTokens(DatalogCPPParser.TOKEN_INTEGER); }
 		public TerminalNode TOKEN_INTEGER(int i) {
-			return getToken(MyDatalogParser.TOKEN_INTEGER, i);
+			return getToken(DatalogCPPParser.TOKEN_INTEGER, i);
 		}
 		public Compare_exprContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
@@ -1024,7 +1024,7 @@ public class MyDatalogParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			CompareMap compare_map;
+			shared_ptr<CompareMap> compare_map = make_shared<CompareMap>();
 			setState(245);
 			_errHandler.sync(this);
 			switch (_input.LA(1)) {
@@ -1032,14 +1032,14 @@ public class MyDatalogParser extends Parser {
 				{
 				setState(241);
 				((Compare_exprContext)_localctx).c1 = match(TOKEN_ID);
-				compare_map.lhsText = (((Compare_exprContext)_localctx).c1!=null?((Compare_exprContext)_localctx).c1.getText():null); compare_map.lhsType = "var";
+				compare_map->lhsText = (((Compare_exprContext)_localctx).c1!=null?((Compare_exprContext)_localctx).c1.getText():null); compare_map->lhsType = "var";
 				}
 				break;
 			case TOKEN_INTEGER:
 				{
 				setState(243);
 				((Compare_exprContext)_localctx).c2 = match(TOKEN_INTEGER);
-				compare_map.lhsText = (((Compare_exprContext)_localctx).c2!=null?((Compare_exprContext)_localctx).c2.getText():null); compare_map.lhsType = "num";
+				compare_map->lhsText = (((Compare_exprContext)_localctx).c2!=null?((Compare_exprContext)_localctx).c2.getText():null); compare_map->lhsType = "num";
 				}
 				break;
 			default:
@@ -1047,7 +1047,7 @@ public class MyDatalogParser extends Parser {
 			}
 			setState(247);
 			((Compare_exprContext)_localctx).op = compare_op();
-			compare_map.op = ((Compare_exprContext)_localctx).op.r;
+			compare_map->op = ((Compare_exprContext)_localctx).op.r;
 			setState(253);
 			_errHandler.sync(this);
 			switch (_input.LA(1)) {
@@ -1055,14 +1055,14 @@ public class MyDatalogParser extends Parser {
 				{
 				setState(249);
 				((Compare_exprContext)_localctx).c3 = match(TOKEN_ID);
-				compare_map.rhsText = (((Compare_exprContext)_localctx).c3!=null?((Compare_exprContext)_localctx).c3.getText():null); compare_map.rhsType = "var";
+				compare_map->lhsText = (((Compare_exprContext)_localctx).c3!=null?((Compare_exprContext)_localctx).c3.getText():null); compare_map->lhsType = "var";
 				}
 				break;
 			case TOKEN_INTEGER:
 				{
 				setState(251);
 				((Compare_exprContext)_localctx).c4 = match(TOKEN_INTEGER);
-				compare_map.rhsText = (((Compare_exprContext)_localctx).c4!=null?((Compare_exprContext)_localctx).c4.getText():null); compare_map.rhsType = "num";
+				compare_map->lhsText = (((Compare_exprContext)_localctx).c4!=null?((Compare_exprContext)_localctx).c4.getText():null); compare_map->lhsType = "num";
 				}
 				break;
 			default:
@@ -1083,16 +1083,16 @@ public class MyDatalogParser extends Parser {
 	}
 
 	public static class Aggregation_exprContext extends ParserRuleContext {
-		public AggMap r;
+		public shared_ptr<AggMap> r;
 		public Aggregation_opContext a1;
 		public Token a2;
 		public Math_exprContext a3;
-		public TerminalNode TOKEN_LEFT_PAREN() { return getToken(MyDatalogParser.TOKEN_LEFT_PAREN, 0); }
-		public TerminalNode TOKEN_RIGHT_PAREN() { return getToken(MyDatalogParser.TOKEN_RIGHT_PAREN, 0); }
+		public TerminalNode TOKEN_LEFT_PAREN() { return getToken(DatalogCPPParser.TOKEN_LEFT_PAREN, 0); }
+		public TerminalNode TOKEN_RIGHT_PAREN() { return getToken(DatalogCPPParser.TOKEN_RIGHT_PAREN, 0); }
 		public Aggregation_opContext aggregation_op() {
 			return getRuleContext(Aggregation_opContext.class,0);
 		}
-		public TerminalNode TOKEN_ID() { return getToken(MyDatalogParser.TOKEN_ID, 0); }
+		public TerminalNode TOKEN_ID() { return getToken(DatalogCPPParser.TOKEN_ID, 0); }
 		public Math_exprContext math_expr() {
 			return getRuleContext(Math_exprContext.class,0);
 		}
@@ -1108,10 +1108,10 @@ public class MyDatalogParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			AggMap agg_map;
+			shared_ptr<AggMap> agg_map; agg_map->aggArg = make_shared<AggArg>();
 			setState(258);
 			((Aggregation_exprContext)_localctx).a1 = aggregation_op();
-			agg_map.aggOp = ((Aggregation_exprContext)_localctx).a1.r;
+			agg_map->aggOp = ((Aggregation_exprContext)_localctx).a1.r;
 			setState(260);
 			match(TOKEN_LEFT_PAREN);
 			setState(266);
@@ -1121,14 +1121,14 @@ public class MyDatalogParser extends Parser {
 				{
 				setState(261);
 				((Aggregation_exprContext)_localctx).a2 = match(TOKEN_ID);
-				agg_map.aggArg.type = "attribute", agg_map.aggArg.attr = (((Aggregation_exprContext)_localctx).a2!=null?((Aggregation_exprContext)_localctx).a2.getText():null);
+				agg_map->aggArg->type = "attribute", agg_map->aggArg->attr = (((Aggregation_exprContext)_localctx).a2!=null?((Aggregation_exprContext)_localctx).a2.getText():null);
 				}
 				break;
 			case 2:
 				{
 				setState(263);
 				((Aggregation_exprContext)_localctx).a3 = math_expr();
-				agg_map.aggArg.type = "math_expr", agg_map.aggArg.mathExpr = ((Aggregation_exprContext)_localctx).a3.r;
+				agg_map->aggArg->type = "math_expr", agg_map->aggArg->mathExpr = ((Aggregation_exprContext)_localctx).a3.r;
 				}
 				break;
 			}
@@ -1149,7 +1149,7 @@ public class MyDatalogParser extends Parser {
 	}
 
 	public static class AttributeContext extends ParserRuleContext {
-		public Attribute r;
+		public shared_ptr<AttributeMap> r;
 		public Non_key_attributeContext a1;
 		public Key_attributeContext a2;
 		public Non_key_attributeContext non_key_attribute() {
@@ -1203,12 +1203,12 @@ public class MyDatalogParser extends Parser {
 	}
 
 	public static class Key_attributeContext extends ParserRuleContext {
-		public Attribute r;
+		public shared_ptr<AttributeMap> r;
 		public Token a1;
 		public Data_typeContext d1;
-		public TerminalNode TOKEN_LEFT_BRACKET() { return getToken(MyDatalogParser.TOKEN_LEFT_BRACKET, 0); }
-		public TerminalNode TOKEN_RIGHT_BRACKET() { return getToken(MyDatalogParser.TOKEN_RIGHT_BRACKET, 0); }
-		public TerminalNode TOKEN_ID() { return getToken(MyDatalogParser.TOKEN_ID, 0); }
+		public TerminalNode TOKEN_LEFT_BRACKET() { return getToken(DatalogCPPParser.TOKEN_LEFT_BRACKET, 0); }
+		public TerminalNode TOKEN_RIGHT_BRACKET() { return getToken(DatalogCPPParser.TOKEN_RIGHT_BRACKET, 0); }
+		public TerminalNode TOKEN_ID() { return getToken(DatalogCPPParser.TOKEN_ID, 0); }
 		public Data_typeContext data_type() {
 			return getRuleContext(Data_typeContext.class,0);
 		}
@@ -1224,18 +1224,18 @@ public class MyDatalogParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			Attribute attr{"", "", true};
+			shared_ptr<AttributeMap> attr_map = make_shared<AttributeMap>("", "", true);
 			setState(280);
 			match(TOKEN_LEFT_BRACKET);
 			setState(281);
 			((Key_attributeContext)_localctx).a1 = match(TOKEN_ID);
-			attr.name = (((Key_attributeContext)_localctx).a1!=null?((Key_attributeContext)_localctx).a1.getText():null);
+			attr_map->name = (((Key_attributeContext)_localctx).a1!=null?((Key_attributeContext)_localctx).a1.getText():null);
 			setState(283);
 			match(TOKEN_RIGHT_BRACKET);
 			setState(284);
 			((Key_attributeContext)_localctx).d1 = data_type();
-			attr.type = ((Key_attributeContext)_localctx).d1.r;
-			((Key_attributeContext)_localctx).r =  attr;
+			attr_map->type = ((Key_attributeContext)_localctx).d1.r;
+			((Key_attributeContext)_localctx).r =  attr_map;
 			}
 		}
 		catch (RecognitionException re) {
@@ -1250,10 +1250,10 @@ public class MyDatalogParser extends Parser {
 	}
 
 	public static class Non_key_attributeContext extends ParserRuleContext {
-		public Attribute r;
+		public shared_ptr<AttributeMap> r;
 		public Token a1;
 		public Data_typeContext d1;
-		public TerminalNode TOKEN_ID() { return getToken(MyDatalogParser.TOKEN_ID, 0); }
+		public TerminalNode TOKEN_ID() { return getToken(DatalogCPPParser.TOKEN_ID, 0); }
 		public Data_typeContext data_type() {
 			return getRuleContext(Data_typeContext.class,0);
 		}
@@ -1269,14 +1269,14 @@ public class MyDatalogParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			Attribute attr{"", "", false};
+			shared_ptr<AttributeMap> attr_map = make_shared<AttributeMap>("", "", false);
 			setState(289);
 			((Non_key_attributeContext)_localctx).a1 = match(TOKEN_ID);
-			attr.name = (((Non_key_attributeContext)_localctx).a1!=null?((Non_key_attributeContext)_localctx).a1.getText():null);
+			attr_map->name = (((Non_key_attributeContext)_localctx).a1!=null?((Non_key_attributeContext)_localctx).a1.getText():null);
 			setState(291);
 			((Non_key_attributeContext)_localctx).d1 = data_type();
-			attr.type = ((Non_key_attributeContext)_localctx).d1.r;
-			((Non_key_attributeContext)_localctx).r =  attr;
+			attr_map->type = ((Non_key_attributeContext)_localctx).d1.r;
+			((Non_key_attributeContext)_localctx).r =  attr_map;
 			}
 		}
 		catch (RecognitionException re) {
@@ -1298,12 +1298,12 @@ public class MyDatalogParser extends Parser {
 		public Token op4;
 		public Token op5;
 		public Token op6;
-		public TerminalNode TOKEN_NOT_EQUALS() { return getToken(MyDatalogParser.TOKEN_NOT_EQUALS, 0); }
-		public TerminalNode TOKEN_EQUALS() { return getToken(MyDatalogParser.TOKEN_EQUALS, 0); }
-		public TerminalNode TOKEN_GREATER_THAN() { return getToken(MyDatalogParser.TOKEN_GREATER_THAN, 0); }
-		public TerminalNode TOKEN_GREATER_EQUAL_THAN() { return getToken(MyDatalogParser.TOKEN_GREATER_EQUAL_THAN, 0); }
-		public TerminalNode TOKEN_LESS_THAN() { return getToken(MyDatalogParser.TOKEN_LESS_THAN, 0); }
-		public TerminalNode TOKEN_LESS_EQUAL_THAN() { return getToken(MyDatalogParser.TOKEN_LESS_EQUAL_THAN, 0); }
+		public TerminalNode TOKEN_NOT_EQUALS() { return getToken(DatalogCPPParser.TOKEN_NOT_EQUALS, 0); }
+		public TerminalNode TOKEN_EQUALS() { return getToken(DatalogCPPParser.TOKEN_EQUALS, 0); }
+		public TerminalNode TOKEN_GREATER_THAN() { return getToken(DatalogCPPParser.TOKEN_GREATER_THAN, 0); }
+		public TerminalNode TOKEN_GREATER_EQUAL_THAN() { return getToken(DatalogCPPParser.TOKEN_GREATER_EQUAL_THAN, 0); }
+		public TerminalNode TOKEN_LESS_THAN() { return getToken(DatalogCPPParser.TOKEN_LESS_THAN, 0); }
+		public TerminalNode TOKEN_LESS_EQUAL_THAN() { return getToken(DatalogCPPParser.TOKEN_LESS_EQUAL_THAN, 0); }
 		public Compare_opContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
 		}
@@ -1387,11 +1387,11 @@ public class MyDatalogParser extends Parser {
 		public Token op3;
 		public Token op4;
 		public Token op5;
-		public TerminalNode TOKEN_MIN() { return getToken(MyDatalogParser.TOKEN_MIN, 0); }
-		public TerminalNode TOKEN_MAX() { return getToken(MyDatalogParser.TOKEN_MAX, 0); }
-		public TerminalNode TOKEN_SUM() { return getToken(MyDatalogParser.TOKEN_SUM, 0); }
-		public TerminalNode TOKEN_COUNT() { return getToken(MyDatalogParser.TOKEN_COUNT, 0); }
-		public TerminalNode TOKEN_COUNT_DISTINCT() { return getToken(MyDatalogParser.TOKEN_COUNT_DISTINCT, 0); }
+		public TerminalNode TOKEN_MIN() { return getToken(DatalogCPPParser.TOKEN_MIN, 0); }
+		public TerminalNode TOKEN_MAX() { return getToken(DatalogCPPParser.TOKEN_MAX, 0); }
+		public TerminalNode TOKEN_SUM() { return getToken(DatalogCPPParser.TOKEN_SUM, 0); }
+		public TerminalNode TOKEN_COUNT() { return getToken(DatalogCPPParser.TOKEN_COUNT, 0); }
+		public TerminalNode TOKEN_COUNT_DISTINCT() { return getToken(DatalogCPPParser.TOKEN_COUNT_DISTINCT, 0); }
 		public Aggregation_opContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
 		}
@@ -1466,10 +1466,10 @@ public class MyDatalogParser extends Parser {
 		public Token op2;
 		public Token op3;
 		public Token op4;
-		public TerminalNode TOKEN_PLUS() { return getToken(MyDatalogParser.TOKEN_PLUS, 0); }
-		public TerminalNode TOKEN_MINUS() { return getToken(MyDatalogParser.TOKEN_MINUS, 0); }
-		public TerminalNode TOKEN_MULT() { return getToken(MyDatalogParser.TOKEN_MULT, 0); }
-		public TerminalNode TOKEN_DIV() { return getToken(MyDatalogParser.TOKEN_DIV, 0); }
+		public TerminalNode TOKEN_PLUS() { return getToken(DatalogCPPParser.TOKEN_PLUS, 0); }
+		public TerminalNode TOKEN_MINUS() { return getToken(DatalogCPPParser.TOKEN_MINUS, 0); }
+		public TerminalNode TOKEN_MULT() { return getToken(DatalogCPPParser.TOKEN_MULT, 0); }
+		public TerminalNode TOKEN_DIV() { return getToken(DatalogCPPParser.TOKEN_DIV, 0); }
 		public Math_opContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
 		}
@@ -1534,8 +1534,8 @@ public class MyDatalogParser extends Parser {
 		public string r;
 		public Token c1;
 		public Token c2;
-		public TerminalNode TOKEN_INTEGER() { return getToken(MyDatalogParser.TOKEN_INTEGER, 0); }
-		public TerminalNode TOKEN_STRING() { return getToken(MyDatalogParser.TOKEN_STRING, 0); }
+		public TerminalNode TOKEN_INTEGER() { return getToken(DatalogCPPParser.TOKEN_INTEGER, 0); }
+		public TerminalNode TOKEN_STRING() { return getToken(DatalogCPPParser.TOKEN_STRING, 0); }
 		public ConstantContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
 		}
@@ -1590,14 +1590,14 @@ public class MyDatalogParser extends Parser {
 		public Token dt6;
 		public Token dt7;
 		public Token dt8;
-		public TerminalNode TOKEN_INT() { return getToken(MyDatalogParser.TOKEN_INT, 0); }
-		public TerminalNode TOKEN_LONG() { return getToken(MyDatalogParser.TOKEN_LONG, 0); }
-		public TerminalNode TOKEN_FLOAT() { return getToken(MyDatalogParser.TOKEN_FLOAT, 0); }
-		public TerminalNode TOKEN_DOUBLE() { return getToken(MyDatalogParser.TOKEN_DOUBLE, 0); }
-		public TerminalNode TOKEN_VARCHAR() { return getToken(MyDatalogParser.TOKEN_VARCHAR, 0); }
-		public TerminalNode TOKEN_CHAR() { return getToken(MyDatalogParser.TOKEN_CHAR, 0); }
-		public TerminalNode TOKEN_DATE() { return getToken(MyDatalogParser.TOKEN_DATE, 0); }
-		public TerminalNode TOKEN_DATETIME() { return getToken(MyDatalogParser.TOKEN_DATETIME, 0); }
+		public TerminalNode TOKEN_INT() { return getToken(DatalogCPPParser.TOKEN_INT, 0); }
+		public TerminalNode TOKEN_LONG() { return getToken(DatalogCPPParser.TOKEN_LONG, 0); }
+		public TerminalNode TOKEN_FLOAT() { return getToken(DatalogCPPParser.TOKEN_FLOAT, 0); }
+		public TerminalNode TOKEN_DOUBLE() { return getToken(DatalogCPPParser.TOKEN_DOUBLE, 0); }
+		public TerminalNode TOKEN_VARCHAR() { return getToken(DatalogCPPParser.TOKEN_VARCHAR, 0); }
+		public TerminalNode TOKEN_CHAR() { return getToken(DatalogCPPParser.TOKEN_CHAR, 0); }
+		public TerminalNode TOKEN_DATE() { return getToken(DatalogCPPParser.TOKEN_DATE, 0); }
+		public TerminalNode TOKEN_DATETIME() { return getToken(DatalogCPPParser.TOKEN_DATETIME, 0); }
 		public Data_typeContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
 		}

@@ -7,12 +7,12 @@
 
 using namespace std;
 
-struct AttributeMap
+struct Attribute
 {
-    AttributeMap() {
+    Attribute() {
 
     }
-    AttributeMap(string name, string type, bool isKey=false) : name{name}, type{type}, isKey{isKey}
+    Attribute(string name, string type, bool isKey=false) : name{name}, type{type}, isKey{isKey}
     {
     }
     string name{""};
@@ -82,6 +82,17 @@ struct AssignMap
 
 struct AtomArg
 {
+    static const string ARG_TYPE_VAR;
+    static const string ARG_TYPE_AGG;
+    static const string ARG_TYPE_CONST;
+    static const string ARG_TYPE_MATH;
+
+    string name;
+    string type;
+    bool isKeyAttr{false};
+    AggMap aggmap;
+    MathMap mathmap;
+
     AtomArg() {}
     AtomArg(string name, string type, bool isKeyAttr = false) : name{name}, type{type}, isKeyAttr{isKeyAttr}
     {
@@ -92,12 +103,27 @@ struct AtomArg
     AtomArg(MathMap mathmap, string type, bool isKeyAttr = false) : mathmap{mathmap}, type{type}, isKeyAttr{isKeyAttr}
     {
     }
-    string name;
-    string type;
-    bool isKeyAttr{false};
-    AggMap aggmap;
-    MathMap mathmap;
+
+    bool isVar() {
+        return type == AtomArg::ARG_TYPE_VAR;
+    }
+
+    bool isAgg() {
+        return type == AtomArg::ARG_TYPE_AGG;
+    }
+
+    bool isConst() {
+        return type == AtomArg::ARG_TYPE_CONST;
+    }
+
+    bool isMathExpr() {
+        return type == AtomArg::ARG_TYPE_MATH;
+    }
 };
+// const string AtomArg::ARG_TYPE_VAR = "variable";
+// const string AtomArg::ARG_TYPE_AGG = "aggregation";
+// const string AtomArg::ARG_TYPE_CONST = "constant";
+// const string AtomArg::ARG_TYPE_MATH = "math_expr";
 
 struct AtomMap
 {
@@ -160,5 +186,6 @@ struct Schema
     //     attributes.clear();
     // }
     string name;
-    vector<AtomArg> attributes;
+    // vector<AtomArg> attributes;
+    vector<Attribute> attributes;
 };
