@@ -41,9 +41,20 @@ struct AggArg
     AggArg(string type, MathMap mathExpr) : type{type}, mathExpr{mathExpr}
     {
     }
+
+    bool isAttribute() {
+        return type == AggArg::AGG_ARG_TYPE_ATTR;
+    }
+
+    bool isMath() {
+        return type == AggArg::AGG_ARG_TYPE_MATH;
+    }
+
     string type{""};
     string attr{""};
     MathMap mathExpr;
+    static const string AGG_ARG_TYPE_ATTR;
+    static const string AGG_ARG_TYPE_MATH;
 };
 
 struct AggMap

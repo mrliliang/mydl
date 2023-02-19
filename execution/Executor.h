@@ -2,6 +2,7 @@
 
 #include <mysql/jdbc.h>
 #include "../parser/basetype.h"
+#include "../parser/DatalogProgram.h"
 
 using namespace std;
 using namespace sql;
@@ -11,8 +12,8 @@ class Executor {
         Executor();
         ~Executor();
 
-        void nonRecursiveEval(vector<RuleMap> &rules);
-        void recursiveEval(vector<RuleMap> &rules);
+        void nonRecursiveEval(vector<RuleMap> &rules, DatalogProgram& pg);
+        void recursiveEval(vector<RuleMap> &rules, DatalogProgram& pg);
 
         void dropTable(string tableName);
         void createTable(Schema& relation);

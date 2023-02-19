@@ -24,7 +24,7 @@ const string ComparisonStruct::TYPE_NUM = "num";
 
 
 
-string SqlGenerator::generateRuleEval(RuleMap &rule, bool recursive) {
+string SqlGenerator::generateRuleEval(RuleMap &rule, bool recursive, DatalogProgram& pg) {
     //var index
     map<string, map<int, vector<int>>> varBodyIndex;
     extractVarBodyIndex(rule.body.atoms, varBodyIndex);
@@ -54,11 +54,11 @@ string SqlGenerator::generateRuleEval(RuleMap &rule, bool recursive) {
     negAtomAlias(rule.body.negations, negAlias);
 
     string select = this->generateSelection(rule.head, rule.body.atoms, headArgBodyIndex,
-        headArgType, headAggregation, bodyAtomAlias);
+        headArgType, headAggregation, bodyAtomAlias, pg);
     
-    string from = this->generateFrom();
+    string from = this->generateFrom(rule.body.atoms, bodyAtomAlias);
     string where;
-    string join = this->generateJoin();
+    string join = this->generateJoin(rule.body.atoms, joinArgs, bodyAtomAlias, pg);
     string groupBy = this->generateGroupBy();
     string insert = this->generateInsertion();
 
@@ -73,7 +73,7 @@ string SqlGenerator::generateRuleEval(RuleMap &rule, bool recursive) {
     return oss.str();
 }
 
-string SqlGenerator::generateRulesEval(vector<RuleMap> &rules, bool recursive) {
+string SqlGenerator::generateRulesEval(vector<RuleMap> &rules, bool recursive, DatalogProgram& pg) {
     return "";
 }
 
@@ -86,41 +86,128 @@ string SqlGenerator::generateSelection(AtomMap& head,
     map<int, HeadArgStruct> headArgBodyIndex,
     vector<string>& headArgType, 
     map<int, string>& headAggregation, 
-    vector<string>& bodyAtomAlias) {
+    vector<string>& bodyAtomAlias,
+    DatalogProgram& pg) {
     
     ostringstream oss;
+    oss << "SELECT ";
     for (int argIndex = 0; argIndex < head.argList.size(); argIndex++) {
-        oss.str("");
+        if (argIndex != 0) {
+            oss << ", ";
+        }
 
         AtomArg& arg = head.argList[argIndex];
         if (arg.isVar()) {
-            bodyAtomIndex = headArgBodyIndex[argIndex].var.first;
-            argIndexInAtom = headArgBodyIndex[argIndex].var.second;
+            int bodyAtomIndex = headArgBodyIndex[argIndex].var.first;
+            int argIndexInAtom = headArgBodyIndex[argIndex].var.second;
             oss << bodyAtomAlias[bodyAtomIndex]
-                << ".";
+                << "."
+                << pg.getRelation(bodyAtoms[bodyAtomIndex].name).attributes[argIndexInAtom].name;
         } else if (arg.isAgg()) {
+            oss << arg.aggmap.aggOp
+                << "(";
+            if (arg.aggmap.aggArg.isAttribute()) {
+                int bodyAtomIndex = headArgBodyIndex[argIndex].agg.attr.first;
+                int argIndexInAtom = headArgBodyIndex[argIndex].agg.attr.second;
+                oss << bodyAtomAlias[bodyAtomIndex]
+                    << "."
+                    << pg.getRelation(bodyAtoms[bodyAtomIndex].name).attributes[argIndexInAtom].name;
+            } else if (arg.aggmap.aggArg.isMath()) {
+                int lhsBodyAtomIndex = headArgBodyIndex[argIndex].agg.lhs.first;
+                int lhsArgIndexInAtom = headArgBodyIndex[argIndex].agg.lhs.second;
+                oss << bodyAtomAlias[lhsBodyAtomIndex]
+                    << "."
+                    << pg.getRelation(bodyAtoms[lhsBodyAtomIndex].name).attributes[lhsArgIndexInAtom].name;
+                
+                oss << " "
+                    << headArgBodyIndex[argIndex].agg.mathOp
+                    << " ";
 
+                int rhsBodyAtomIndex = headArgBodyIndex[argIndex].agg.rhs.first;
+                int rhsArgIndexInAtom = headArgBodyIndex[argIndex].agg.rhs.second;
+                oss << bodyAtomAlias[rhsBodyAtomIndex]
+                    << "."
+                    << pg.getRelation(bodyAtoms[rhsBodyAtomIndex].name).attributes[rhsArgIndexInAtom].name;
+            }
+            oss << ")";
         } else if (arg.isMathExpr()) {
-            
-        } else if (arg.isConst()) {
+            int lhsBodyAtomIndex = headArgBodyIndex[argIndex].math.lhs.first;
+            int lhsArgIndexInAtom = headArgBodyIndex[argIndex].math.lhs.second;
+            oss << bodyAtomAlias[lhsBodyAtomIndex]
+                << "."
+                << pg.getRelation(bodyAtoms[lhsBodyAtomIndex].name).attributes[lhsArgIndexInAtom].name;
 
+            oss << " "
+                << headArgBodyIndex[argIndex].math.mathOp
+                << " ";
+
+            int rhsBodyAtomIndex = headArgBodyIndex[argIndex].math.rhs.first;
+            int rhsArgIndexInAtom = headArgBodyIndex[argIndex].math.rhs.second;
+            oss << bodyAtomAlias[rhsBodyAtomIndex]
+                << "."
+                << pg.getRelation(bodyAtoms[rhsBodyAtomIndex].name).attributes[rhsArgIndexInAtom].name;
+        } else if (arg.isConst()) {
+            oss << headArgBodyIndex[argIndex].constant;
         }
+
+        oss << " AS "
+            << pg.getRelation(head.name).attributes[argIndex].name;
     }
 
-
-    return "";
+    return oss.str();
 }
 
-string SqlGenerator::generateFrom() {
-    return "";
+string SqlGenerator::generateFrom(vector<AtomMap>& bodyAtoms, vector<string>& bodyAtomAlias) {
+    ostringstream oss;
+    oss << "FROM ";
+    for (int i = 0; i < bodyAtoms.size(); i++) {
+        if (i != 0) {
+            oss << ", ";
+        }
+        oss << bodyAtoms[i].name
+            << " "
+            << bodyAtomAlias[i];
+    }
+    return oss.str();
 }
 
 string SqlGenerator::generateFromRecursive() {
     return "";
 }
 
-string SqlGenerator::generateJoin() {
-    return "";
+string SqlGenerator::generateJoin(vector<AtomMap>& bodyAtoms, 
+    map<string, map<int, vector<int>>>& joinArgs, 
+    vector<string>& bodyAtomAlias,
+    DatalogProgram& pg) {
+
+    vector<string> equalStrs;
+    for (auto argIt : joinArgs) {
+        string lastArg;
+        string argName = argIt.first;
+        for (auto atomIt : argIt.second) {
+            int atomIndex = atomIt.first;
+            AtomMap& atom = bodyAtoms[atomIndex];
+            Schema& relation = pg.getRelation(atom.name);
+            for (auto joinArgIndex : atomIt.second) {
+                string equalStr;
+                string currentArg = bodyAtomAlias[atomIndex] + "." + relation.attributes[joinArgIndex].name;
+                if (lastArg.size() > 0) {
+                    equalStr = lastArg + " = " + currentArg;
+                    equalStrs.emplace_back(equalStr);
+                }
+                string lastArg = currentArg;
+            }
+        }
+    }
+
+    ostringstream oss;
+    for (int i = 0; i < equalStrs.size(); i++) {
+        if (i != 0) {
+            oss << " AND ";
+        }
+        oss << equalStrs[i];
+    }
+    return oss.str();
 }
 
 string SqlGenerator::generateComparision() {

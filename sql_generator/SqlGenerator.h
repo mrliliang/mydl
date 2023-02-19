@@ -3,6 +3,7 @@
 #include <string>
 
 #include "../parser/basetype.h"
+#include "../parser/DatalogProgram.h"
 
 using namespace std;
 
@@ -102,8 +103,8 @@ void negAtomAlias(vector<AtomMap>& negAtoms, vector<string>& negAlias);
 
 class SqlGenerator {
     public:
-        string generateRuleEval(RuleMap &rule, bool recursive);
-        string generateRulesEval(vector<RuleMap> &rules, bool recursive);
+        string generateRuleEval(RuleMap &rule, bool recursive, DatalogProgram& pg);
+        string generateRulesEval(vector<RuleMap> &rules, bool recursive, DatalogProgram& pg);
 
         string generateInsertion();
         string generateSelection(AtomMap& head, 
@@ -111,10 +112,14 @@ class SqlGenerator {
             map<int, HeadArgStruct> headArgBodyIndex,
             vector<string>& headArgType, 
             map<int, string>& headAggregation, 
-            vector<string>& bodyAtomAlias);
-        string generateFrom();
+            vector<string>& bodyAtomAlias,
+            DatalogProgram& pg);
+        string generateFrom(vector<AtomMap>& bodyAtoms, vector<string>& bodyAtomAlias);
         string generateFromRecursive();
-        string generateJoin();
+        string generateJoin(vector<AtomMap>& bodyAtoms, map<string, 
+            map<int, vector<int>>>& joinArgs, 
+            vector<string>& bodyAtomAlias,
+            DatalogProgram& pg);
         string generateComparision();
         string generateConstantConstraint();
         string generateNegation();

@@ -50,10 +50,10 @@ void print(T&& a) {
 }
 
 int main(int argc, char *argv[]) {
-    map<string, int> kv;
-    kv["a"];
-    kv["b"];
-    for (auto p : kv) {
-        std::cout << "(" << p.first << ", " << p.second << ")" << std::endl;
-    }
+    string s1 = "select";
+    string s2 = "from";
+    string s3 = "where";
+    string s4 = s1 + " * " + s2 + " T " + s3;
+
+    std::cout << s4 << std::endl;
 }

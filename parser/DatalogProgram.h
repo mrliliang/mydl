@@ -27,10 +27,11 @@ public:
     DatalogProgram(string datalogFile);
     ~DatalogProgram();
 
-    vector<Schema> &getEdbs();
-    vector<Schema> &getIdbs();
-    vector<RuleMap> &getRules();
-    RuleMap &getRule(int index);
+    vector<Schema>& getEdbs();
+    vector<Schema>& getIdbs();
+    vector<RuleMap>& getRules();
+    RuleMap& getRule(int index);
+    Schema& getRelation(string name);
     void print();
 
 private:

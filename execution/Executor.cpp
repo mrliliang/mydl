@@ -27,20 +27,20 @@ Executor::~Executor() {
     delete this->conn;
 }
 
-void Executor::nonRecursiveEval(vector<RuleMap> &rules) {
+void Executor::nonRecursiveEval(vector<RuleMap> &rules, DatalogProgram& pg) {
     SqlGenerator sqlGen;
     unique_ptr<Statement> stmt{this->conn->createStatement()};
     for (auto rule : rules) {
-        string evalStr{sqlGen.generateRuleEval(rule, false)};
+        string evalStr{sqlGen.generateRuleEval(rule, false, pg)};
         stmt->execute(evalStr);
     }
 }
 
-void Executor::recursiveEval(vector<RuleMap> &rules) {
+void Executor::recursiveEval(vector<RuleMap> &rules, DatalogProgram& pg) {
     bool deltaEmpty{false};
     while (!deltaEmpty) {
         SqlGenerator sqlGen;
-        string evalStr{sqlGen.generateRulesEval(rules, true)};
+        string evalStr{sqlGen.generateRulesEval(rules, true, pg)};
         Statement *stmt = this->conn->createStatement();
         stmt->execute(evalStr);
         //TODO to be completed

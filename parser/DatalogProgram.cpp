@@ -1,5 +1,6 @@
 #include <fstream>
 #include <string>
+#include <algorithm>
 
 #include "DatalogProgram.h"
 #include "antlr4-runtime.h"
@@ -42,6 +43,21 @@ vector<RuleMap> &DatalogProgram::getRules()
 
 RuleMap& DatalogProgram::getRule(int index) {
     return this->rules[index];
+}
+
+Schema& DatalogProgram::getRelation(string name) {
+    auto pos1 = std::find_if(this->edbs.begin(), this->edbs.end(), [name](Schema& s) {
+        return s.name == name;
+    });
+    if (pos1 != this->edbs.end()) {
+        return *pos1;
+    }
+
+    auto pos2 = std::find_if(this->idbs.begin(), this->idbs.end(), [name](Schema& s) {
+        return s.name == name;
+    });
+
+    return *pos2;
 }
 
 void DatalogProgram::print() {
