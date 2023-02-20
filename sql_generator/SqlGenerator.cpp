@@ -57,19 +57,46 @@ string SqlGenerator::generateRuleEval(RuleMap &rule, bool recursive, DatalogProg
         headArgType, headAggregation, bodyAtomAlias, pg);
     
     string from = this->generateFrom(rule.body.atoms, bodyAtomAlias);
-    string where;
     string join = this->generateJoin(rule.body.atoms, joinArgs, bodyAtomAlias, pg);
+    string compare = this->generateComparision(rule.body.atoms, comparisonArgs, bodyAtomAlias, pg);
+    string constantConstraint = this->generateConstantConstraint(rule.body.atoms, constantArgs, 
+        bodyAtomAlias, pg);
+    string negation = this->generateNegation(rule.body.atoms, rule.body.negations, antiJoinArgs, 
+        bodyAtomAlias, negAlias, pg);
     string groupBy = this->generateGroupBy();
+
+    string where;
+    if (join.size() > 0) {
+        where.append(" ").append(join);
+    }
+    if (compare.size() > 0) {
+        where.append(" ").append(compare);
+    }
+    if (constantConstraint.size() > 0) {
+        where.append(" ").append(constantConstraint);
+    }
+    if (negation.size() > 0) {
+        where.append(" ").append(negation);
+    }
+    if (where.size() > 0) {
+        where = "WHERE" + where;
+    }
+
+
     string insert = this->generateInsertion();
 
     ostringstream oss;
     oss << select
         << " "
-        << from
-        << " "
-        << where
-        << " "
-        << groupBy;
+        << from;
+    if (where.size() > 0) {
+        oss << " "
+            << where;
+    }
+    if (groupBy.size() > 0) {
+        oss << " "
+            << groupBy;
+    }
     return oss.str();
 }
 
@@ -210,16 +237,139 @@ string SqlGenerator::generateJoin(vector<AtomMap>& bodyAtoms,
     return oss.str();
 }
 
-string SqlGenerator::generateComparision() {
-    return "";
+string SqlGenerator::generateComparision(vector<AtomMap>& bodyAtoms, 
+    map<int, map<int, vector<ComparisonStruct>>> comparisonArgs,
+    vector<string>& bodyAtomAlias, 
+    DatalogProgram& pg) {
+
+    vector<string> comparisonItems;
+    for (auto atomIt : comparisonArgs) {
+        int atomIndex = atomIt.first;
+        string atomName = bodyAtoms[atomIndex].name;
+        string atomAlias = bodyAtomAlias[atomIndex];
+        for (auto argIt : atomIt.second) {
+            int argIndex = argIt.first;
+            string attr = pg.getRelation(atomName).attributes[argIndex].name;
+            for (auto cmp : argIt.second) {
+                ostringstream oss;
+                if (cmp.otherSideType == ComparisonStruct::TYPE_NUM) {
+                    if (cmp.baseVarSide == ComparisonStruct::LSIDE) {
+                        oss << atomAlias
+                            << "."
+                            << attr
+                            << " "
+                            << cmp.compareOp
+                            << " "
+                            << cmp.numVal;
+                    } else {
+                        oss << cmp.numVal
+                            << " "
+                            << cmp.compareOp
+                            << " "
+                            << atomAlias
+                            << "."
+                            << attr;
+                    }
+                } else if (cmp.otherSideType == ComparisonStruct::TYPE_VAR) {
+                    string otherAtomAlias = bodyAtomAlias[cmp.otherSideAtomIndex];
+                    string otherAttr = pg.getRelation(bodyAtoms[cmp.otherSideAtomIndex].name)
+                        .attributes[cmp.otherSideArgIndex].name;
+                    if (cmp.baseVarSide == ComparisonStruct::RSIDE) {
+                        oss << atomAlias
+                            << "."
+                            << attr
+                            << " "
+                            << cmp.compareOp
+                            << " "
+                            << otherAtomAlias
+                            << "."
+                            << otherAttr;
+                    } else {
+                        oss << otherAtomAlias
+                            << "."
+                            << otherAttr
+                            << " "
+                            << cmp.compareOp
+                            << " "
+                            << atomAlias
+                            << "."
+                            << attr;
+                    }
+                }
+                comparisonItems.emplace_back(oss.str());
+            }
+        }
+    }
+
+    ostringstream oss;
+    for (auto it = comparisonItems.begin(); it != comparisonItems.end(); it++) {
+        if (it != comparisonItems.begin()) {
+            oss << " AND ";
+        }
+        oss << *it;
+    }
+
+    return oss.str();
 }
 
-string SqlGenerator::generateConstantConstraint() {
-    return "";
+string SqlGenerator::generateConstantConstraint(vector<AtomMap>& bodyAtoms,
+    map<int, map<int, string>>& constantArgs,
+    vector<string>& bodyAtomAlias,
+    DatalogProgram& pg) {
+    
+    vector<string> constantStrs;
+    for (auto atomIt : constantArgs) {
+        int atomIndex = atomIt.first;
+        string atomName = bodyAtoms[atomIndex].name;
+        string atomAlias = bodyAtomAlias[atomIt.first];
+        for (auto argIt : atomIt.second) {
+            ostringstream oss;
+            int argIndex = argIt.first;
+            Attribute& attr = pg.getRelation(atomName).attributes[argIndex]; 
+            oss << atomName
+                << "."
+                << atomAlias
+                << " = ";
+            string constant = argIt.second;
+            if (attr.isNumeric()) {
+                oss << constant;
+            } else {
+                oss << "'"
+                    << constant
+                    << "'";
+            }
+            constantStrs.emplace_back(oss.str());
+        }
+    }
+
+    ostringstream oss;
+    for (auto it = constantStrs.begin(); it != constantStrs.end(); it++) {
+        if (it != constantStrs.begin()) {
+            oss << " AND ";
+        }
+        oss << *it;
+    }
+    return oss.str();
 }
 
-string SqlGenerator::generateNegation() {
-    return "";
+string SqlGenerator::generateNegation(vector<AtomMap>& bodyAtoms, 
+    vector<AtomMap>& negAtoms, 
+    map<int, map<int, pair<int, int>>>& antiJoinArgs,
+    vector<string>& bodyAtomAlias,
+    vector<string>& negAtomAlias,
+    DatalogProgram& pg) {
+    
+    vector<string> negStrs;
+    for ()
+
+    ostringstream oss;
+    for (auto it = negStrs.begin(); it != negStrs.end(); it++) {
+        if (it != negStrs.begin()) {
+            oss << " AND ";
+        }
+        oss << *it;
+    }
+    return oss.str();
 }
 
 string SqlGenerator::generateGroupBy() {

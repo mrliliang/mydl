@@ -5,6 +5,7 @@
 #include <map>
 #include <memory>
 #include <sstream>
+#include <algorithm>
 // #include "basetype.h"
 
 
@@ -50,10 +51,10 @@ void print(T&& a) {
 }
 
 int main(int argc, char *argv[]) {
-    string s1 = "select";
-    string s2 = "from";
-    string s3 = "where";
-    string s4 = s1 + " * " + s2 + " T " + s3;
+    string src = "abcdef";
+    string dst = src;
+    std::transform(src.begin(), src.end(), dst.begin(), ::toupper);
 
-    std::cout << s4 << std::endl;
+    std::cout << src << endl;
+    std::cout << dst << endl;
 }

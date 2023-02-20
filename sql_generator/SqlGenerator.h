@@ -116,13 +116,24 @@ class SqlGenerator {
             DatalogProgram& pg);
         string generateFrom(vector<AtomMap>& bodyAtoms, vector<string>& bodyAtomAlias);
         string generateFromRecursive();
-        string generateJoin(vector<AtomMap>& bodyAtoms, map<string, 
-            map<int, vector<int>>>& joinArgs, 
+        string generateJoin(vector<AtomMap>& bodyAtoms, 
+            map<string, map<int, vector<int>>>& joinArgs, 
             vector<string>& bodyAtomAlias,
             DatalogProgram& pg);
-        string generateComparision();
-        string generateConstantConstraint();
-        string generateNegation();
+        string generateComparision(vector<AtomMap>& bodyAtoms, 
+            map<int, map<int, vector<ComparisonStruct>>> comparisonArgs,
+            vector<string>& bodyAtomAlias, 
+            DatalogProgram& pg);
+        string generateConstantConstraint(vector<AtomMap>& bodyAtoms,
+            map<int, map<int, string>>& constantArgs,
+            vector<string>& bodyAtomAlias,
+            DatalogProgram& pg);
+        string generateNegation(vector<AtomMap>& bodyAtoms, 
+            vector<AtomMap>& negAtoms, 
+            map<int, map<int, pair<int, int>>>& antiJoinArgs,
+            vector<string>& bodyAtomAlias,
+            vector<string>& negAtomAlias,
+            DatalogProgram& pg);
         string generateGroupBy();
         string generateIntersection();
         string generateSetDiff();

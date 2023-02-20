@@ -4,6 +4,7 @@
 #include <vector>
 #include <map>
 #include <memory>
+#include <algorithm>
 
 using namespace std;
 
@@ -15,6 +16,16 @@ struct Attribute
     Attribute(string name, string type, bool isKey=false) : name{name}, type{type}, isKey{isKey}
     {
     }
+
+    bool isNumeric() {
+        string tmp = type;
+        std::transform(tmp.begin(), tmp.end(), tmp.begin(), ::toupper);
+        return tmp == "int" ||
+            tmp == "float" ||
+            tmp == "double" ||
+            tmp == "long";
+    }
+
     string name{""};
     string type{""};
     bool isKey{false};
