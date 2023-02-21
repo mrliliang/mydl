@@ -106,7 +106,7 @@ class SqlGenerator {
         string generateRuleEval(RuleMap &rule, bool recursive, DatalogProgram& pg);
         string generateRulesEval(vector<RuleMap> &rules, bool recursive, DatalogProgram& pg);
 
-        string generateInsertion();
+        string generateInsertion(string relation, string query);
         string generateSelection(AtomMap& head, 
             vector<AtomMap>& bodyAtoms, 
             map<int, HeadArgStruct> headArgBodyIndex,
@@ -134,7 +134,7 @@ class SqlGenerator {
             vector<string>& bodyAtomAlias,
             vector<string>& negAtomAlias,
             DatalogProgram& pg);
-        string generateGroupBy();
+        string generateGroupBy(AtomMap& head, DatalogProgram& pg);
         string generateIntersection();
         string generateSetDiff();
 };

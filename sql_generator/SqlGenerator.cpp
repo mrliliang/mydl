@@ -63,7 +63,7 @@ string SqlGenerator::generateRuleEval(RuleMap &rule, bool recursive, DatalogProg
         bodyAtomAlias, pg);
     string negation = this->generateNegation(rule.body.atoms, rule.body.negations, antiJoinArgs, 
         bodyAtomAlias, negAlias, pg);
-    string groupBy = this->generateGroupBy();
+    string groupBy = this->generateGroupBy(rule.head, pg);
 
     string where;
     if (join.size() > 0) {
@@ -82,9 +82,6 @@ string SqlGenerator::generateRuleEval(RuleMap &rule, bool recursive, DatalogProg
         where = "WHERE" + where;
     }
 
-
-    string insert = this->generateInsertion();
-
     ostringstream oss;
     oss << select
         << " "
@@ -97,15 +94,22 @@ string SqlGenerator::generateRuleEval(RuleMap &rule, bool recursive, DatalogProg
         oss << " "
             << groupBy;
     }
-    return oss.str();
+
+    string insert = this->generateInsertion(rule.head.name, oss.str());
+    return insert;
 }
 
 string SqlGenerator::generateRulesEval(vector<RuleMap> &rules, bool recursive, DatalogProgram& pg) {
     return "";
 }
 
-string SqlGenerator::generateInsertion() {
-    return "";
+string SqlGenerator::generateInsertion(string relation, string query) {
+    ostringstream oss;
+    oss << "INSERT INTO "
+        << relation
+        << " "
+        << query;
+    return oss.str();
 }
 
 string SqlGenerator::generateSelection(AtomMap& head, 
@@ -326,9 +330,9 @@ string SqlGenerator::generateConstantConstraint(vector<AtomMap>& bodyAtoms,
             ostringstream oss;
             int argIndex = argIt.first;
             Attribute& attr = pg.getRelation(atomName).attributes[argIndex]; 
-            oss << atomName
+            oss << atomAlias
                 << "."
-                << atomAlias
+                << attr.name
                 << " = ";
             string constant = argIt.second;
             if (attr.isNumeric()) {
@@ -360,7 +364,62 @@ string SqlGenerator::generateNegation(vector<AtomMap>& bodyAtoms,
     DatalogProgram& pg) {
     
     vector<string> negStrs;
-    for ()
+    for (int negIndex = 0; negIndex < negAtoms.size(); negIndex++) {
+        AtomMap& negAtom = negAtoms[negIndex];
+        Schema& relation = pg.getRelation(negAtom.name);
+        vector<string> negEqStrs;
+        for (int argIndex = 0; argIndex < negAtom.argList.size(); argIndex++) {
+            AtomArg& arg = negAtom.argList[argIndex];
+            Attribute& attr = relation.attributes[argIndex];
+            if (arg.isConst()) {
+                ostringstream oss;
+                oss << negAtomAlias[negIndex]
+                    << "."
+                    << attr.name
+                    << " = ";
+                if (attr.isNumeric()) {
+                    oss << arg.name;
+                } else {
+                    oss << "'"
+                        << arg.name
+                        << "'";
+                }
+                negEqStrs.emplace_back(oss.str());
+            } else if (arg.isVar()) {
+                ostringstream oss;
+                oss << negAtomAlias[negIndex]
+                    << "."
+                    << attr.name
+                    << " = ";
+                int posAtomIndex = antiJoinArgs[negIndex][argIndex].first;
+                AtomMap& posAtom = bodyAtoms[posAtomIndex];
+                Schema& posRelation = pg.getRelation(posAtom.name);
+                int argIndexInPosAtom = antiJoinArgs[negIndex][argIndex].second;
+                oss << bodyAtomAlias[posAtomIndex]
+                    << "."
+                    << posRelation.attributes[argIndexInPosAtom].name;
+                negEqStrs.emplace_back(oss.str());
+            }
+        }
+
+        ostringstream oss;
+        oss << "NOT EXISTS (SELECT * FROM "
+            << negAtom.name
+            << " "
+            << negAtomAlias[negIndex];
+        if (negEqStrs.size() > 0) {
+            oss << " WHERE ";
+            for (auto it = negEqStrs.begin(); it != negEqStrs.end(); it++) {
+                if (it != negEqStrs.begin()) {
+                    oss << " AND ";
+                }
+                oss << *it;
+            }
+        }
+        oss << ")";
+
+        negStrs.emplace_back(oss.str());
+    }
 
     ostringstream oss;
     for (auto it = negStrs.begin(); it != negStrs.end(); it++) {
@@ -372,8 +431,26 @@ string SqlGenerator::generateNegation(vector<AtomMap>& bodyAtoms,
     return oss.str();
 }
 
-string SqlGenerator::generateGroupBy() {
-    return "";
+string SqlGenerator::generateGroupBy(AtomMap& head, DatalogProgram& pg) {
+    vector<string> aggAttrs;
+    Schema& relation = pg.getRelation(head.name);
+    for (int i = 0; i < head.argList.size(); i++) {
+        AtomArg& arg = head.argList[i];
+        if (arg.isAgg()) {
+            aggAttrs.emplace_back(relation.attributes[i].name);
+        }
+    }
+    ostringstream oss;
+    if (aggAttrs.size() > 0) {
+        oss << "GROUP BY ";
+    }
+    for (auto it = aggAttrs.begin(); it != aggAttrs.end(); it++) {
+        if (it != aggAttrs.begin()) {
+            oss << ", ";
+        }
+        oss << *it;
+    }
+    return oss.str();
 }
 
 string SqlGenerator::generateIntersection() {
