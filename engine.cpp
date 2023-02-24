@@ -12,8 +12,7 @@ void createTables(vector<Schema> &relations);
 
 int main(int argc, char *args[])
 {
-    if (argc <= 1)
-    {
+    if (argc <= 1) {
         std::cout << "no datalog program file" << std::endl;
         exit(0);
     }
@@ -55,8 +54,7 @@ int main(int argc, char *args[])
         }
         if (ruleGroup.isRecursive) {
             executor.nonRecursiveEval(evalRules, prog);
-        }
-        else {
+        } else {
             executor.recursiveEval(evalRules, prog);
         }
     }

@@ -1,6 +1,7 @@
 #include <iostream>
 #include <sstream>
 #include <memory>
+#include <set>
 
 
 #include "Executor.h"
@@ -33,17 +34,60 @@ void Executor::nonRecursiveEval(vector<RuleMap> &rules, DatalogProgram& pg) {
     for (auto rule : rules) {
         string evalStr{sqlGen.generateRuleEval(rule, false, pg)};
         stmt->execute(evalStr);
+        //TODO: perform deduplication
+        
     }
 }
 
 void Executor::recursiveEval(vector<RuleMap> &rules, DatalogProgram& pg) {
-    bool deltaEmpty{false};
+    map<string, vector<RuleMap*>> recursiveRuleGroups;
+    for (auto r : rules) {
+        recursiveRuleGroups[r.head.name].emplace_back(&r);
+    }
+
+    //initialize delta tables for recursive idbs to store new facts in the current iteration
+    this->initDeltaTables(recursiveRuleGroups, pg);
+
+    //initialize prev tables for recursive idbs to store all facts before the current iteration
+    vector<string> prevTables;
+    this->initPrevTables(prevTables, rules, recursiveRuleGroups, pg);
+
+
+    int iterateNum = 0;
+    bool deltaEmpty = this->checkEmptyDelta(recursiveRuleGroups);
     while (!deltaEmpty) {
-        SqlGenerator sqlGen;
-        string evalStr{sqlGen.generateRulesEval(rules, true, pg)};
-        Statement *stmt = this->conn->createStatement();
-        stmt->execute(evalStr);
-        //TODO to be completed
+        iterateNum++;
+
+        //TODO: create delta tables of the recursive idbs for current iteration
+
+        //TODO: create delta tables for deduplication operation: m_delta
+
+        for (auto group : recursiveRuleGroups) {
+            string idb = group.first;
+
+            for (auto rule : group.second) {
+                //TODO: generate a set of sql for the delta rules of a recursive rule
+                SqlGenerator sqlGen;
+                string evalStr{sqlGen.generateRulesEval(rules, true, pg)};
+                Statement *stmt = this->conn->createStatement();
+                stmt->execute(evalStr);
+                
+            }
+
+            //TODO: create temporay table to store result before deduplication
+
+            //TODO: perform deduplication
+
+            //TODO: drop m_delta table
+
+            //TODO: save current idb
+
+        }
+
+        //TODO: drop all old delta tables
+
+        //TODO: check fixpoint
+        deltaEmpty = this->checkEmptyDelta(recursiveRuleGroups);
     }
 }
 
@@ -59,12 +103,12 @@ void Executor::dropTable(string tableName) {
     stmt->execute(sqlStr);
 }
 
-void Executor::createTable(Schema& relation) {
-    this->dropTable(relation.name);
+void Executor::createTable(Schema& relation, string tableName) {
+    this->dropTable(tableName);
 
     ostringstream oss;
     oss << "CREATE TABLE `"
-        << relation.name
+        << tableName
         << "` (";
 
     for (auto it = relation.attributes.begin(); it != relation.attributes.end(); it++) {
@@ -85,7 +129,7 @@ void Executor::createTable(Schema& relation) {
 
 void Executor::createTables(vector<Schema>& relations) {
     for (auto relation : relations) {
-        this->createTable(relation);
+        this->createTable(relation, relation.name);
     }
 }
 
@@ -109,4 +153,52 @@ void Executor::loadData(vector<Schema>& relations) {
     for (auto relation : relations) {
         loadData(relation);
     }
+}
+
+
+void Executor::initDeltaTables(map<string, vector<RuleMap*>>& recursiveRuleGroups, 
+    DatalogProgram& pg) {
+    //TODO: to be completed
+    for (auto group : recursiveRuleGroups) {
+        string idb = group.first;
+        vector<RuleMap*>& rules = group.second;
+        string deltaTableName{idb + "_delta_0"};
+        Schema& relation = pg.getIdbRelation(idb);
+        this->createTable(relation, deltaTableName);
+    }
+}
+
+
+void Executor::initPrevTables(vector<string> prevTables, 
+            vector<RuleMap>& recursiveRules, 
+            map<string, vector<RuleMap*>>& recursiveRuleGroups, 
+            DatalogProgram& pg) {
+    //TODO: to be completed
+    vector<string> nonlinearIdbs;
+    for (auto rule : recursiveRules) {
+        int count = 0;
+        vector<string> candidates;
+        for (auto atom : rule.body.atoms) {
+            if (recursiveRuleGroups.find(atom.name) != recursiveRuleGroups.end()) {
+                count++;
+                candidates.emplace_back(atom.name);
+            }
+        }
+        if (count >= 2) {
+            nonlinearIdbs.insert(nonlinearIdbs.end(), candidates.begin(), candidates.end());
+        }
+    }
+
+    for (auto idb : nonlinearIdbs) {
+        Schema& relation = pg.getIdbRelation(idb);
+        string prevTableName = idb + "_prev";
+        prevTables.emplace_back(prevTableName);
+        this->createTable(relation, prevTableName);
+    }
+}
+
+
+bool Executor::checkEmptyDelta(map<string, vector<RuleMap*>>& recursiveRuleGroups) {
+    //TODO: to be completed
+    return true;
 }

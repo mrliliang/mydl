@@ -60,6 +60,20 @@ Schema& DatalogProgram::getRelation(string name) {
     return *pos2;
 }
 
+Schema& DatalogProgram::getIdbRelation(string name) {
+    auto pos = std::find_if(this->idbs.begin(), this->idbs.end(), [name](Schema& s) {
+        return s.name == name;
+    });
+    return *pos;
+}
+
+Schema& DatalogProgram::getEdbRelation(string name) {
+    auto pos = std::find_if(this->edbs.begin(), this->edbs.end(), [name](Schema& s) {
+        return s.name == name;
+    });
+    return *pos;
+}
+
 void DatalogProgram::print() {
     std::cout << "EDB_DECL:" << std::endl;
     this->iterateEdbIdb(this->edbs);

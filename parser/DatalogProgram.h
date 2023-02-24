@@ -32,6 +32,8 @@ public:
     vector<RuleMap>& getRules();
     RuleMap& getRule(int index);
     Schema& getRelation(string name);
+    Schema& getIdbRelation(string name);
+    Schema& getEdbRelation(string name);
     void print();
 
 private:

@@ -118,7 +118,7 @@ DependencyGraph *RuleAnalyzer::constructDependencyGraph(vector<RuleMap> *rules)
 }
 
 
-//TODO 是正确的strata顺序吗？
+//TODO: 是正确的strata顺序吗？
 map<int, vector<int>> *RuleAnalyzer::computeRuleSccs(vector<vector<int>> *dependency) {
     vector<int> visitFlag(dependency->size(), 0);
     stack<int> dfsReversePostOrder;

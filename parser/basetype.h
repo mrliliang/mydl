@@ -48,7 +48,7 @@ struct AggArg
     AggArg(string type, string attr) : type{type}, attr{attr} {
         
     };
-    //TODO 可能需要修改
+    //TODO: 可能需要修改
     AggArg(string type, MathMap mathExpr) : type{type}, mathExpr{mathExpr}
     {
     }
@@ -71,7 +71,7 @@ struct AggArg
 struct AggMap
 {
     AggMap() {}
-    //TODO 可能需要修改
+    //TODO: 可能需要修改
     AggMap(string aggOp, AggArg aggArg) : aggOp{aggOp}, aggArg{aggArg}
     {
     }
@@ -94,7 +94,7 @@ struct CompareMap
 struct AssignMap
 {
     AssignMap() {}
-    //TODO 可能需要修改
+    //TODO: 可能需要修改
     AssignMap(string lhs, MathMap rhs) : lhs{lhs}, rhs{rhs}
     {
     }

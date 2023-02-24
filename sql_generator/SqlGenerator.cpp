@@ -470,7 +470,7 @@ string SqlGenerator::generateSetDiff() {
  */
 void extractVarBodyIndex(vector<AtomMap>& bodyAtoms, 
     map<string, map<int, vector<int>>>& varBodyIndex) {
-    //TODO 可能需要修正参数的顺序
+    //TODO: 可能需要修正参数的顺序
     for (int atomIndex = 0; atomIndex < bodyAtoms.size(); atomIndex++) {
         AtomMap& atom = bodyAtoms[atomIndex];
         for (int argIndex = 0; argIndex < atom.argList.size(); argIndex++) {
@@ -548,7 +548,7 @@ void extractSelectionArgs(AtomMap& head,
  * @param joinArgs 
  */
 void extractJoinArgs(map<string, map<int, vector<int>>>& varBodyIndex, map<string, map<int, vector<int>>>& joinArgs) {
-    //TODO 可能需要修正参数的顺序
+    //TODO: 可能需要修正参数的顺序
     for (auto varIt = varBodyIndex.begin(); varIt != varBodyIndex.end(); varIt++) {
         const string& var = varIt->first;
         bool join{false};
@@ -577,7 +577,7 @@ void extractJoinArgs(map<string, map<int, vector<int>>>& varBodyIndex, map<strin
 void extractComparisonArgs(vector<CompareMap>& comparisons, 
     map<string, map<int, vector<int>>>& varBodyIndex, 
     map<int, map<int, vector<ComparisonStruct>>>& comparisonArgs) {
-    //TODO 可能需要修正参数的顺序
+    //TODO: 可能需要修正参数的顺序
     for (CompareMap& cmp : comparisons) {
         ComparisonStruct cs;
         cs.compareOp = cmp.op;
@@ -622,7 +622,7 @@ void extractComparisonArgs(vector<CompareMap>& comparisons,
  * @param constantArgs 
  */
 void extractConstantArgs(vector<AtomMap>& bodyAtoms, map<int, map<int, string>>& constantArgs) {
-    //TODO 可能需要修正参数的顺序
+    //TODO: 可能需要修正参数的顺序
     for (int atomIndex = 0; atomIndex < bodyAtoms.size(); atomIndex++) {
         AtomMap& atom = bodyAtoms[atomIndex];
         for (int argIndex = 0; argIndex < atom.argList.size(); argIndex++) {
@@ -655,7 +655,7 @@ void extractNegationArgs(vector<AtomMap>& bodyNegAtoms,
         AtomMap& neg = bodyNegAtoms[negIndex];
         for (int argIndex = 0; argIndex < neg.argList.size(); argIndex++) {
             AtomArg& negArg = neg.argList[argIndex];
-            //TODO negArgs好像没有必要
+            //TODO: negArgs好像没有必要
         }
     }
 
