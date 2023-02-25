@@ -100,11 +100,19 @@ void extractNegationArgs(vector<AtomMap>& bodyNegAtoms, map<string, map<int, vec
     map<int, map<string, string>>& negArgs, map<int, map<int, pair<int, int>>>& antiJoinArgs);
 void atomAlias(vector<AtomMap>& bodyAtoms, vector<string>& alias);
 void negAtomAlias(vector<AtomMap>& negAtoms, vector<string>& negAlias);
+void deltaBodyGroups(vector<AtomMap>& bodyAtoms, 
+    map<string, vector<RuleMap*>>& recursiveRuleGroups,
+    int iterateNum, 
+    vector<vector<pair<string, string>>>& deltaGroups);
 
 class SqlGenerator {
     public:
-        string generateRuleEval(RuleMap &rule, bool recursive, DatalogProgram& pg);
+        string generateRuleEval(RuleMap &rule, DatalogProgram& pg);
         string generateRulesEval(vector<RuleMap> &rules, bool recursive, DatalogProgram& pg);
+        vector<string> generateRecursiveRuleEval(RuleMap& rule, 
+            map<string, vector<RuleMap*>>& recursiveRuleGroups,
+            int iterateNum, 
+            DatalogProgram& pg);
 
         string generateInsertion(string relation, string query);
         string generateSelection(AtomMap& head, 
@@ -115,7 +123,10 @@ class SqlGenerator {
             vector<string>& bodyAtomAlias,
             DatalogProgram& pg);
         string generateFrom(vector<AtomMap>& bodyAtoms, vector<string>& bodyAtomAlias);
-        string generateFromRecursive();
+        vector<string> generateFromRecursive(vector<AtomMap>& bodyAtoms, 
+            map<string, vector<RuleMap*>>& recursiveRuleGroups, 
+            vector<vector<pair<string, string>>>& deltaBodyGroups, 
+            vector<string>& bodyAtomAlias);
         string generateJoin(vector<AtomMap>& bodyAtoms, 
             map<string, map<int, vector<int>>>& joinArgs, 
             vector<string>& bodyAtomAlias,

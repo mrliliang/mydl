@@ -24,7 +24,7 @@ const string ComparisonStruct::TYPE_NUM = "num";
 
 
 
-string SqlGenerator::generateRuleEval(RuleMap &rule, bool recursive, DatalogProgram& pg) {
+string SqlGenerator::generateRuleEval(RuleMap &rule, DatalogProgram& pg) {
     //var index
     map<string, map<int, vector<int>>> varBodyIndex;
     extractVarBodyIndex(rule.body.atoms, varBodyIndex);
@@ -101,6 +101,94 @@ string SqlGenerator::generateRuleEval(RuleMap &rule, bool recursive, DatalogProg
 
 string SqlGenerator::generateRulesEval(vector<RuleMap> &rules, bool recursive, DatalogProgram& pg) {
     return "";
+}
+
+
+vector<string> SqlGenerator::generateRecursiveRuleEval(RuleMap& rule, 
+    map<string, vector<RuleMap*>>& recursiveRuleGroups, 
+    int iterateNum, 
+    DatalogProgram& pg) {
+    //var index
+    map<string, map<int, vector<int>>> varBodyIndex;
+    extractVarBodyIndex(rule.body.atoms, varBodyIndex);
+    // select args
+    map<int, HeadArgStruct> headArgBodyIndex;
+    vector<string> headArgType;
+    map<int, string> headAggregation;
+    extractSelectionArgs(rule.head, varBodyIndex, headArgBodyIndex, headArgType, headAggregation);
+    // join args
+    map<string, map<int, vector<int>>> joinArgs;
+    extractJoinArgs(varBodyIndex, joinArgs);
+    // comparison args
+    map<int, map<int, vector<ComparisonStruct>>> comparisonArgs;
+    extractComparisonArgs(rule.body.compares, varBodyIndex, comparisonArgs);
+    // constant args
+    map<int, map<int, string>> constantArgs;
+    extractConstantArgs(rule.body.atoms, constantArgs);
+    // negation args
+    map<int, map<string, string>> negArgs;
+    map<int, map<int, pair<int, int>>> antiJoinArgs;
+    extractNegationArgs(rule.body.negations, varBodyIndex, negArgs, antiJoinArgs);
+    // body atom alias
+    vector<string> bodyAtomAlias;
+    atomAlias(rule.body.atoms, bodyAtomAlias);
+    // negation atom alias
+    vector<string> negAlias;
+    negAtomAlias(rule.body.negations, negAlias);
+
+    //TODO: enumerate the bodies of delta rules
+    vector<vector<pair<string, string>>> deltaGroups;
+    deltaBodyGroups(rule.body.atoms, recursiveRuleGroups, iterateNum, deltaGroups);
+
+    string select = this->generateSelection(rule.head, rule.body.atoms, headArgBodyIndex,
+        headArgType, headAggregation, bodyAtomAlias, pg);
+    
+    //TODO: generate from clauses of delta rules
+    vector<string> fromStrs = this->generateFromRecursive(deltaGroups, bodyAtomAlias);
+
+    string join = this->generateJoin(rule.body.atoms, joinArgs, bodyAtomAlias, pg);
+    string compare = this->generateComparision(rule.body.atoms, comparisonArgs, bodyAtomAlias, pg);
+    string constantConstraint = this->generateConstantConstraint(rule.body.atoms, constantArgs, 
+        bodyAtomAlias, pg);
+    string negation = this->generateNegation(rule.body.atoms, rule.body.negations, antiJoinArgs, 
+        bodyAtomAlias, negAlias, pg);
+    string groupBy = this->generateGroupBy(rule.head, pg);
+
+    string where;
+    if (join.size() > 0) {
+        where.append(" ").append(join);
+    }
+    if (compare.size() > 0) {
+        where.append(" ").append(compare);
+    }
+    if (constantConstraint.size() > 0) {
+        where.append(" ").append(constantConstraint);
+    }
+    if (negation.size() > 0) {
+        where.append(" ").append(negation);
+    }
+    if (where.size() > 0) {
+        where = "WHERE" + where;
+    }
+
+    vector<string> subQueries;
+    for (auto from : fromStrs) {
+        ostringstream oss;
+        oss << select
+            << " "
+            << from;
+        if (where.size() > 0) {
+            oss << " "
+                << where;
+        }
+        if (groupBy.size() > 0) {
+            oss << " "
+                << groupBy;
+        }
+        subQueries.emplace_back(oss.str());
+    }
+
+    return subQueries;
 }
 
 string SqlGenerator::generateInsertion(string relation, string query) {
@@ -202,8 +290,24 @@ string SqlGenerator::generateFrom(vector<AtomMap>& bodyAtoms, vector<string>& bo
     return oss.str();
 }
 
-string SqlGenerator::generateFromRecursive() {
-    return "";
+vector<string> SqlGenerator::generateFromRecursive(vector<vector<pair<string, string>>>& deltaBodyGroups, 
+        vector<string>& bodyAtomAlias) {
+    //TODO: generate from clauses of delta rules, to be completed.
+    vector<string> fromStrs;
+    for (auto group : deltaBodyGroups) {
+        ostringstream oss;
+        oss << "FROM ";
+        for (int atomIndex = 0; atomIndex < bodyAtomAlias.size(); atomIndex++) {
+            if (atomIndex != 0) {
+                oss << ", ";
+            }
+            oss << group[atomIndex].first
+                << " "
+                << bodyAtomAlias[atomIndex];
+        }
+        fromStrs.emplace_back(oss.str());
+    }
+    return fromStrs;
 }
 
 string SqlGenerator::generateJoin(vector<AtomMap>& bodyAtoms, 
@@ -698,5 +802,21 @@ void negAtomAlias(vector<AtomMap>& negAtoms, vector<string>& negAlias) {
             << "_"
             << atomIndex;
         negAlias.emplace_back(oss.str());
+    }
+}
+
+void deltaBodyGroups(vector<AtomMap>& bodyAtoms, 
+    map<string, vector<RuleMap*>>& recursiveRuleGroups,
+    int iterateNum, 
+    vector<vector<pair<string, string>>>& deltaGroups) {
+    //TODO: generate the bodies of delta rules, to be completed.
+
+    for (auto atom : bodyAtoms) {
+        pair<string, string> atomName;
+        if (recursiveRuleGroups.find(atom.first) != recursiveRuleGroups.end()) {
+            atomName = std::make_pair(atom.first, "default");
+        } else {
+            atomName = std::make_pair(atom.first + "_prev", prev);
+        }
     }
 }

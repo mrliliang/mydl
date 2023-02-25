@@ -32,7 +32,7 @@ void Executor::nonRecursiveEval(vector<RuleMap> &rules, DatalogProgram& pg) {
     SqlGenerator sqlGen;
     unique_ptr<Statement> stmt{this->conn->createStatement()};
     for (auto rule : rules) {
-        string evalStr{sqlGen.generateRuleEval(rule, false, pg)};
+        string evalStr{sqlGen.generateRuleEval(rule, pg)};
         stmt->execute(evalStr);
         //TODO: perform deduplication
         
@@ -59,22 +59,29 @@ void Executor::recursiveEval(vector<RuleMap> &rules, DatalogProgram& pg) {
         iterateNum++;
 
         //TODO: create delta tables of the recursive idbs for current iteration
-
-        //TODO: create delta tables for deduplication operation: m_delta
+        this->createDeltaTables(recursiveRuleGroups, iterateNum);
 
         for (auto group : recursiveRuleGroups) {
             string idb = group.first;
 
-            for (auto rule : group.second) {
+            //TODO: create m_delta table for the current idb to be used for deduplication later
+            Schema& relation = pg.getIdbRelation(idb);
+            string mDeltaTable = idb + "_m_delta";
+            this->createTable(relation, mDeltaTable);
+
+            vector<string> queries;
+            for (RuleMap* rule : group.second) {
                 //TODO: generate a set of sql for the delta rules of a recursive rule
                 SqlGenerator sqlGen;
-                string evalStr{sqlGen.generateRulesEval(rules, true, pg)};
-                Statement *stmt = this->conn->createStatement();
-                stmt->execute(evalStr);
-                
+                vector<string> subQueries = sqlGen.generateRecursiveRuleEval(*rule, 
+                    recursiveRuleGroups, iterateNum, pg);
+                queries.insert(queries.end(), subQueries.begin(), subQueries.end());
+                // Statement *stmt = this->conn->createStatement();
+                // stmt->execute(evalStr);
             }
 
             //TODO: create temporay table to store result before deduplication
+
 
             //TODO: perform deduplication
 
@@ -158,7 +165,7 @@ void Executor::loadData(vector<Schema>& relations) {
 
 void Executor::initDeltaTables(map<string, vector<RuleMap*>>& recursiveRuleGroups, 
     DatalogProgram& pg) {
-    //TODO: to be completed
+    //TODO: initialize delta_0, m_delta, common_delta
     for (auto group : recursiveRuleGroups) {
         string idb = group.first;
         vector<RuleMap*>& rules = group.second;
@@ -173,7 +180,7 @@ void Executor::initPrevTables(vector<string> prevTables,
             vector<RuleMap>& recursiveRules, 
             map<string, vector<RuleMap*>>& recursiveRuleGroups, 
             DatalogProgram& pg) {
-    //TODO: to be completed
+    //TODO: initialize prev table for nonlinear recursive idbs to store all facts till the last iteration
     vector<string> nonlinearIdbs;
     for (auto rule : recursiveRules) {
         int count = 0;
@@ -200,5 +207,11 @@ void Executor::initPrevTables(vector<string> prevTables,
 
 bool Executor::checkEmptyDelta(map<string, vector<RuleMap*>>& recursiveRuleGroups) {
     //TODO: to be completed
-    return true;
+    return false;
+}
+
+
+void Executor::createDeltaTables(map<string, vector<RuleMap*>>& recursiveRuleGroups, 
+    int iterateNum) {
+    //TODO: to be competed
 }
