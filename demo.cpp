@@ -52,11 +52,6 @@ void print(T&& a) {
 }
 
 int main(int argc, char *argv[]) {
-    vector<vector<pair<string, string>>> v(std::pow(2, 10), vector<pair<string, string>>{});
-    std::cout << v.size() << std::endl;
-
-    vector<vector<pair<string, string>>>& v1 = v;
-    v1 = vector<vector<pair<string, string>>>(std::pow(2, 10), vector<pair<string, string>>{});
-    std::cout << "v1: " << v1.size() << std::endl;
-    std::cout << "v: " << v.size() << std::endl;
+    string s = "abc"  "def"  "gh";
+    std::cout << s << std::endl;
 }

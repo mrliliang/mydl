@@ -33,4 +33,6 @@ class Executor {
         void createDeltaTables(map<string, vector<RuleMap*>>& recursiveRuleGroups, 
             int iterateNum, 
             DatalogProgram& pg);
+        void deduplicate(string tableName, Schema& relation);
+        void diff(string table1, string table2);
 };

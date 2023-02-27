@@ -138,7 +138,7 @@ vector<string> SqlGenerator::generateRecursiveRuleEval(RuleMap& rule,
     negAtomAlias(rule.body.negations, negAlias);
 
     //TODO: enumerate the bodies of delta rules
-    vector<vector<pair<string, string>>> deltaGroups;
+    vector<vector<string>> deltaGroups;
     deltaBodyGroups(rule.body.atoms, recursiveRuleGroups, iterateNum, deltaGroups);
 
     string select = this->generateSelection(rule.head, rule.body.atoms, headArgBodyIndex,
@@ -291,7 +291,7 @@ string SqlGenerator::generateFrom(vector<AtomMap>& bodyAtoms, vector<string>& bo
     return oss.str();
 }
 
-vector<string> SqlGenerator::generateFromRecursive(vector<vector<pair<string, string>>>& deltaBodyGroups, 
+vector<string> SqlGenerator::generateFromRecursive(vector<vector<string>>& deltaBodyGroups, 
         vector<string>& bodyAtomAlias) {
     //TODO: generate from clauses of delta rules, to be completed.
     vector<string> fromStrs;
@@ -302,7 +302,7 @@ vector<string> SqlGenerator::generateFromRecursive(vector<vector<pair<string, st
             if (atomIndex != 0) {
                 oss << ", ";
             }
-            oss << group[atomIndex].first
+            oss << group[atomIndex]
                 << " "
                 << bodyAtomAlias[atomIndex];
         }
@@ -809,31 +809,29 @@ void negAtomAlias(vector<AtomMap>& negAtoms, vector<string>& negAlias) {
 void deltaBodyGroups(vector<AtomMap>& bodyAtoms, 
     map<string, vector<RuleMap*>>& recursiveRuleGroups,
     int iterateNum, 
-    vector<vector<pair<string, string>>>& deltaGroups) {
+    vector<vector<string>>& deltaGroups) {
     //TODO: generate the bodies of delta rules, to be completed.
 
     int recursiveIdbCount = 0;
     for (auto atom : bodyAtoms) {
         string idb = atom.name;
-        if (recursiveRuleGroup.find(idb) != recursiveRuleGroup.end()) {
+        if (recursiveRuleGroups.find(idb) != recursiveRuleGroups.end()) {
             recursiveIdbCount++;
         }
     }
 
-    deltaGroups = vector<vector<pair<string, string>>>(std::pow(2, recursiveIdbCount) + 1, vector<pair<string, string>>{});
+    deltaGroups = vector<vector<string>>(std::pow(2, recursiveIdbCount) + 1, vector<string>{});
     for (auto atom : bodyAtoms) {
-        pair<string, string> atomName;
-        if (recursiveRuleGroups.find(atom.first) == recursiveRuleGroups.end()) {
-            pair<string, string> atom = std::make_pair(atom.first, "default");
+        if (recursiveRuleGroups.find(atom.name) == recursiveRuleGroups.end()) {
             for (auto deltaGroup : deltaGroups) {
-                deltaGroup.emplace_back(atom);
+                deltaGroup.emplace_back(atom.name);
             }
         } else {
-            pair<string, string> prevAtom = std::make_pair(atom.first + "_prev", "prev");
-            pair<string, string> deltaAtom = std::make_pair(atom.first + "_delta", "delta");
-            for (int i = 0; i < deltaGroups.size(); i++) {
-                deltaGroup[2 * i + 1].emplace_back(prevAtom);
-                deltaGroup[2 * i + 2].emplace_back(deltaAtom);
+            string prevAtom{atom.name + "_prev"};
+            string deltaAtom{atom.name + "_delta"};
+            for (int i = 0; i < deltaGroups.size() / 2; i++) {
+                deltaGroups[2 * i + 1].emplace_back(prevAtom);
+                deltaGroups[2 * i + 2].emplace_back(deltaAtom);
             }
         }
     }

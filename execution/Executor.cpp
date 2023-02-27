@@ -69,6 +69,11 @@ void Executor::recursiveEval(vector<RuleMap> &rules, DatalogProgram& pg) {
             string mDeltaTable = idb + "_m_delta";
             this->createTable(relation, mDeltaTable);
 
+            //TODO: create temporay table to store result before deduplication
+            string tmpDeltaTable = idb + "tmp_m_delta";
+            this->createTable(relation, tmpDeltaTable);
+
+            unique_ptr<Statement> stmt{this->conn->createStatement()};
             vector<string> queries;
             for (RuleMap* rule : group.second) {
                 //TODO: generate a set of sql for the delta rules of a recursive rule
@@ -76,14 +81,17 @@ void Executor::recursiveEval(vector<RuleMap> &rules, DatalogProgram& pg) {
                 vector<string> subQueries = sqlGen.generateRecursiveRuleEval(*rule, 
                     recursiveRuleGroups, iterateNum, pg);
                 queries.insert(queries.end(), subQueries.begin(), subQueries.end());
-                // Statement *stmt = this->conn->createStatement();
-                // stmt->execute(evalStr);
+                for (auto subquery : subQueries) {
+                    string insertion = this->generateInsertion(tmpDeltaTable, subquery);
+                    stmt->execute(insertion);
+                }
             }
 
-            //TODO: create temporay table to store result before deduplication
-
-
             //TODO: perform deduplication
+            this->deduplicate(tmpDeltaTable, relation);
+
+            //TODO: perform set difference, merge new facts into the result table
+            // this->diff();
 
             //TODO: drop m_delta table
 
@@ -92,6 +100,7 @@ void Executor::recursiveEval(vector<RuleMap> &rules, DatalogProgram& pg) {
         }
 
         //TODO: drop all old delta tables
+
 
         //TODO: check fixpoint
         deltaEmpty = this->checkEmptyDelta(recursiveRuleGroups);
@@ -218,7 +227,15 @@ void Executor::createDeltaTables(map<string, vector<RuleMap*>>& recursiveRuleGro
     for (auto group : recursiveRuleGroups) {
         string idb = group.first;
         Schema& relation = pg.getIdbRelation(idb);
-        string deltaTableName = idb + "_delta_" + iterateNum;
-        this->createTable(relation, deltaTableName);
+        ostringstream oss;
+        oss << idb 
+            << "_delta_"
+            << iterateNum;
+        this->createTable(relation, oss.str());
     }
+}
+
+
+void Executor::deduplicate(string tableName, Schema& relation) {
+    //TODO: perform deduplication, to be completed
 }

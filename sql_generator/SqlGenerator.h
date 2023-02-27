@@ -103,7 +103,7 @@ void negAtomAlias(vector<AtomMap>& negAtoms, vector<string>& negAlias);
 void deltaBodyGroups(vector<AtomMap>& bodyAtoms, 
     map<string, vector<RuleMap*>>& recursiveRuleGroups,
     int iterateNum, 
-    vector<vector<pair<string, string>>>& deltaGroups);
+    vector<vector<string>>& deltaGroups);
 
 class SqlGenerator {
     public:
@@ -123,9 +123,7 @@ class SqlGenerator {
             vector<string>& bodyAtomAlias,
             DatalogProgram& pg);
         string generateFrom(vector<AtomMap>& bodyAtoms, vector<string>& bodyAtomAlias);
-        vector<string> generateFromRecursive(vector<AtomMap>& bodyAtoms, 
-            map<string, vector<RuleMap*>>& recursiveRuleGroups, 
-            vector<vector<pair<string, string>>>& deltaBodyGroups, 
+        vector<string> generateFromRecursive(vector<vector<string>>& deltaBodyGroups, 
             vector<string>& bodyAtomAlias);
         string generateJoin(vector<AtomMap>& bodyAtoms, 
             map<string, map<int, vector<int>>>& joinArgs, 
