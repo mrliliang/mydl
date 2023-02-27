@@ -59,7 +59,7 @@ void Executor::recursiveEval(vector<RuleMap> &rules, DatalogProgram& pg) {
         iterateNum++;
 
         //TODO: create delta tables of the recursive idbs for current iteration
-        this->createDeltaTables(recursiveRuleGroups, iterateNum);
+        this->createDeltaTables(recursiveRuleGroups, iterateNum, pg);
 
         for (auto group : recursiveRuleGroups) {
             string idb = group.first;
@@ -212,6 +212,13 @@ bool Executor::checkEmptyDelta(map<string, vector<RuleMap*>>& recursiveRuleGroup
 
 
 void Executor::createDeltaTables(map<string, vector<RuleMap*>>& recursiveRuleGroups, 
-    int iterateNum) {
+    int iterateNum,
+    DatalogProgram& pg) {
     //TODO: to be competed
+    for (auto group : recursiveRuleGroups) {
+        string idb = group.first;
+        Schema& relation = pg.getIdbRelation(idb);
+        string deltaTableName = idb + "_delta_" + iterateNum;
+        this->createTable(relation, deltaTableName);
+    }
 }

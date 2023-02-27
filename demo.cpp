@@ -6,6 +6,7 @@
 #include <memory>
 #include <sstream>
 #include <algorithm>
+#include <cmath>
 // #include "basetype.h"
 
 
@@ -51,10 +52,11 @@ void print(T&& a) {
 }
 
 int main(int argc, char *argv[]) {
-    string src = "abcdef";
-    string dst = src;
-    std::transform(src.begin(), src.end(), dst.begin(), ::toupper);
+    vector<vector<pair<string, string>>> v(std::pow(2, 10), vector<pair<string, string>>{});
+    std::cout << v.size() << std::endl;
 
-    std::cout << src << endl;
-    std::cout << dst << endl;
+    vector<vector<pair<string, string>>>& v1 = v;
+    v1 = vector<vector<pair<string, string>>>(std::pow(2, 10), vector<pair<string, string>>{});
+    std::cout << "v1: " << v1.size() << std::endl;
+    std::cout << "v: " << v.size() << std::endl;
 }

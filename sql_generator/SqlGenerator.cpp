@@ -3,6 +3,7 @@
 #include <map>
 #include <utility>
 #include <string>
+#include <cmath>
 
 #include "SqlGenerator.h"
 
@@ -811,12 +812,30 @@ void deltaBodyGroups(vector<AtomMap>& bodyAtoms,
     vector<vector<pair<string, string>>>& deltaGroups) {
     //TODO: generate the bodies of delta rules, to be completed.
 
+    int recursiveIdbCount = 0;
     for (auto atom : bodyAtoms) {
-        pair<string, string> atomName;
-        if (recursiveRuleGroups.find(atom.first) != recursiveRuleGroups.end()) {
-            atomName = std::make_pair(atom.first, "default");
-        } else {
-            atomName = std::make_pair(atom.first + "_prev", prev);
+        string idb = atom.name;
+        if (recursiveRuleGroup.find(idb) != recursiveRuleGroup.end()) {
+            recursiveIdbCount++;
         }
     }
+
+    deltaGroups = vector<vector<pair<string, string>>>(std::pow(2, recursiveIdbCount) + 1, vector<pair<string, string>>{});
+    for (auto atom : bodyAtoms) {
+        pair<string, string> atomName;
+        if (recursiveRuleGroups.find(atom.first) == recursiveRuleGroups.end()) {
+            pair<string, string> atom = std::make_pair(atom.first, "default");
+            for (auto deltaGroup : deltaGroups) {
+                deltaGroup.emplace_back(atom);
+            }
+        } else {
+            pair<string, string> prevAtom = std::make_pair(atom.first + "_prev", "prev");
+            pair<string, string> deltaAtom = std::make_pair(atom.first + "_delta", "delta");
+            for (int i = 0; i < deltaGroups.size(); i++) {
+                deltaGroup[2 * i + 1].emplace_back(prevAtom);
+                deltaGroup[2 * i + 2].emplace_back(deltaAtom);
+            }
+        }
+    }
+    deltaGroups.erase(deltaGroups.begin(), deltaGroups.begin() + 1);
 }

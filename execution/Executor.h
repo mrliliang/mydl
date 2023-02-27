@@ -30,5 +30,7 @@ class Executor {
             map<string, vector<RuleMap*>>& recursiveRuleGroups, 
             DatalogProgram& pg);
         bool checkEmptyDelta(map<string, vector<RuleMap*>>& recursiveRuleGroups);
-        void createDeltaTables(map<string, vector<RuleMap*>>& recursiveRuleGroups, int iterateNum);
+        void createDeltaTables(map<string, vector<RuleMap*>>& recursiveRuleGroups, 
+            int iterateNum, 
+            DatalogProgram& pg);
 };
