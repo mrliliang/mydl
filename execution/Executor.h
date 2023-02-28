@@ -20,6 +20,7 @@ class Executor {
         void createTables(vector<Schema>& relations);
         void loadData(Schema& relation);
         void loadData(vector<Schema>& relations);
+        void execute(string sql);
 
     private:
         Connection *conn = nullptr;
@@ -33,6 +34,8 @@ class Executor {
         void createDeltaTables(map<string, vector<RuleMap*>>& recursiveRuleGroups, 
             int iterateNum, 
             DatalogProgram& pg);
-        void deduplicate(string tableName, Schema& relation);
-        void diff(string table1, string table2);
+        void dropDeltaTables(map<string, vector<RuleMap*>>& recursiveRuleGroups, int iterateNum);
+        void deduplicate(string dupTable, string noDupTable, Schema& relation);
+        void diff(string table1, string table2, string resultTable);
+        void mergeDelta(string deltaTable, string idbTable);
 };
