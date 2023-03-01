@@ -828,7 +828,7 @@ void deltaBodyGroups(vector<AtomMap>& bodyAtoms,
             }
         } else {
             string prevAtom{atom.name + "_prev"};
-            string deltaAtom{atom.name + string("_delta") + iterateNum};
+            string deltaAtom{atom.name + string("_delta") + std::to_string(iterateNum)};
             for (int i = 0; i < deltaGroups.size() / 2; i++) {
                 deltaGroups[2 * i + 1].emplace_back(prevAtom);
                 deltaGroups[2 * i + 2].emplace_back(deltaAtom);

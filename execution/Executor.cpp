@@ -54,11 +54,11 @@ void Executor::recursiveEval(vector<RuleMap> &rules, DatalogProgram& pg) {
 
 
     int iterateNum = 0;
-    bool deltaEmpty = this->checkEmptyDelta(recursiveRuleGroups);
+    bool deltaEmpty = this->checkEmptyDelta(recursiveRuleGroups, iterateNum);
     while (!deltaEmpty) {
         iterateNum++;
 
-        //TODO: create delta tables of the recursive idbs for current iteration
+        //create delta tables of the recursive idbs for current iteration
         this->createDeltaTables(recursiveRuleGroups, iterateNum, pg);
 
         for (auto group : recursiveRuleGroups) {
@@ -66,61 +66,62 @@ void Executor::recursiveEval(vector<RuleMap> &rules, DatalogProgram& pg) {
             Schema& relation = pg.getIdbRelation(idb);
             string idbDeltaTable = idb + string("_delta_") + std::to_string(iterateNum);
 
-            //TODO: create temporay tmp_m_delta table to store result before deduplication for current idb
-            string tmpDeltaTable = idb + "tmp_m_delta";
-            this->createTable(relation, tmpDeltaTable);
+            //create temporay tmp_delta_dup table to store result without deduplication for current idb
+            string tmpDeltaDupTable = idb + "_tmp_delta_dup";
+            this->createTable(relation, tmpDeltaDupTable);
 
             vector<string> queries;
             for (RuleMap* rule : group.second) {
-                //TODO: generate a set of sql for the delta rules of a recursive rule
+                //generate a set of sql for the delta rules of a recursive rule
                 SqlGenerator sqlGen;
                 vector<string> subQueries = sqlGen.generateRecursiveRuleEval(*rule, 
                     recursiveRuleGroups, iterateNum - 1, pg);
                 queries.insert(queries.end(), subQueries.begin(), subQueries.end());
                 for (auto subquery : subQueries) {
-                    string insertion = sqlGen.generateInsertion(tmpDeltaTable, subquery);
+                    string insertion = sqlGen.generateInsertion(tmpDeltaDupTable, subquery);
                     this->execute(insertion);
                 }
             }
 
-            //TODO: create m_delta table for the current idb to be used for deduplication
-            string mDeltaTable = idb + "_m_delta";
-            this->createTable(relation, mDeltaTable);
+            //create tmp_delta_nodup table for the current idb to be used for deduplication
+            string tmpDeltaNodupTable = idb + "_tmp_delta_nodup";
+            this->createTable(relation, tmpDeltaNodupTable);
 
-            //TODO: perform deduplication in tmp_m_delta table, and store the result in m_delta table,
-            // then drop the temporary tmp_m_delta table
-            this->deduplicate(tmpDeltaTable, mDeltaTable, relation);
-            this->dropTable(tmpDeltaTable);
+            //perform deduplication in tmp_delta_dup table, and store the result in 
+            //tmp_delta_nodup table, then drop the tmp_delta_dup table
+            this->deduplicate(tmpDeltaDupTable, tmpDeltaNodupTable, relation);
+            this->dropTable(tmpDeltaDupTable);
 
-            //TODO: perform set difference between m_delta table and idb table, save the diff in 
-            // idb delta table, then drop the m_delta table.
-            this->diff(mDeltaTable, idb, idbDeltaTable);
-            //TODO: drop m_delta table
-            this->dropTable(mDeltaTable);
+            //TODO: perform set difference between tmp_delta_nodup table and idb table, save the diff in 
+            // idb delta table, then drop the tmp_delta_nodup table.
+            this->diff(tmpDeltaNodupTable, idb, idbDeltaTable);
+            // drop tmp_delta_nodup table
+            this->dropTable(tmpDeltaNodupTable);
 
             //TOTO: if current idb is non-linear, move current idb facts to idb_prev table
-            if (std::find(prevTables.begin(), prevTables.end(), idb)) {
-                string prevTable = idb + "_prev";
-                this->createTable(prevTable);
+            string prevTable = idb + "_prev";
+            if (std::find(prevTables.begin(), prevTables.end(), prevTable) != prevTables.end()) {
+                this->createTable(relation, prevTable);
                 this->moveData(idb, prevTable);
             }
 
-            //TODO: merge new facts in idb delta table into idb table
+            //merge new facts in idb delta table into idb table
             this->moveData(idbDeltaTable, idb);
         }
 
-        //TODO: drop old delta tables in the last iteration
+        //drop old delta tables in the last iteration
         this->dropDeltaTables(recursiveRuleGroups, iterateNum - 1);
 
-        //TODO: check fixpoint
-        deltaEmpty = this->checkEmptyDelta(recursiveRuleGroups);
+        //check fixpoint
+        deltaEmpty = this->checkEmptyDelta(recursiveRuleGroups, iterateNum);
     }
 
+    //drop all prev tables for nonlinear idbs
     for (auto table : prevTables) {
         this->dropTable(table);
     }
     
-    //TODO: drop delta tables in the final iteration
+    //drop delta tables in the final iteration
     this->dropDeltaTables(recursiveRuleGroups, iterateNum);
 }
 
@@ -194,6 +195,12 @@ void Executor::execute(string sql) {
     stmt->execute(sql);
 }
 
+unique_ptr<ResultSet> Executor::executeQuery(string sql) {
+    unique_ptr<Statement> stmt{this->conn->createStatement()};
+    unique_ptr<ResultSet> ret{stmt->executeQuery(sql)};
+    return ret;
+}
+
 
 void Executor::initDeltaTables(map<string, vector<RuleMap*>>& recursiveRuleGroups, 
     DatalogProgram& pg) {
@@ -204,6 +211,8 @@ void Executor::initDeltaTables(map<string, vector<RuleMap*>>& recursiveRuleGroup
         string deltaTableName{idb + "_delta_0"};
         Schema& relation = pg.getIdbRelation(idb);
         this->createTable(relation, deltaTableName);
+
+        this->moveData(idb, deltaTableName);
 
         //TODO: common_delta
 
@@ -221,15 +230,13 @@ void Executor::initPrevTables(vector<string> prevTables,
     //TODO: initialize prev table for nonlinear recursive idbs to store all facts till the last iteration
     vector<string> nonlinearIdbs;
     for (auto rule : recursiveRules) {
-        int count = 0;
         vector<string> candidates;
         for (auto atom : rule.body.atoms) {
             if (recursiveRuleGroups.find(atom.name) != recursiveRuleGroups.end()) {
-                count++;
                 candidates.emplace_back(atom.name);
             }
         }
-        if (count >= 2) {
+        if (candidates.size() >= 2) {
             nonlinearIdbs.insert(nonlinearIdbs.end(), candidates.begin(), candidates.end());
         }
     }
@@ -243,9 +250,16 @@ void Executor::initPrevTables(vector<string> prevTables,
 }
 
 
-bool Executor::checkEmptyDelta(map<string, vector<RuleMap*>>& recursiveRuleGroups) {
-    //TODO: to be completed
-    return false;
+bool Executor::checkEmptyDelta(map<string, vector<RuleMap*>>& recursiveRuleGroups, int iterateNum) {
+    for (auto group : recursiveRuleGroups) {
+        string idb = group.first;
+        string idbDeltaTable = idb + string("_delta_") + std::to_string(iterateNum);
+        int rowCount = this->countRows(idbDeltaTable);
+        if (rowCount > 0) {
+            return false;
+        }
+    }
+    return true;
 }
 
 
@@ -268,7 +282,6 @@ void Executor::createDeltaTables(map<string, vector<RuleMap*>>& recursiveRuleGro
 void Executor::dropDeltaTables(map<string, vector<RuleMap*>>& recursiveRuleGroups, int iterateNum) {
     for (auto group : recursiveRuleGroups) {
         string idb = group.first;
-        Schema& relation = pg.getIdbRelation(idb);
         ostringstream oss;
         oss << idb 
             << "_delta_"
@@ -296,12 +309,39 @@ void Executor::deduplicate(string dupTable, string noDupTable, Schema& relation)
 }
 
 
-void Executor::diff(string table1, string table2, string resultTable) {
-    //TODO: delta = table1 - table2, store delta in result table, to be complete
+void Executor::diff(string tmpIdbDelta, string idb, string idbDelta) {
+    //TODO: delta = tmpIdbDelta - idb, store delta in idbDelta table, to be complete
+    int tmpIdbDeltaCount = this->countRows(tmpIdbDelta);
+    int idbCount = this->countRows(idb);
+    if (tmpIdbDeltaCount <= 0) {
+        return;
+    }
+    if (idbCount <= 0) {
+        this->moveData(tmpIdbDelta, idbDelta);
+        return;
+    }
+    
 
 }
 
 
 void Executor::moveData(string srcTable, string destTable) {
-    //TODO: to be completed
+    ostringstream oss;
+    oss << "INSERT INTO "
+        << destTable
+        << " SELECT * FROM "
+        << srcTable;
+    this->execute(oss.str());
 }
+
+
+int Executor::countRows(string table) {
+    ostringstream oss;
+    oss << "SELECT COUNT(*) FROM "
+        << table;
+    unique_ptr<ResultSet> ret = this->executeQuery(oss.str());
+    int count = ret->getInt(1);
+    return count;
+}
+
+

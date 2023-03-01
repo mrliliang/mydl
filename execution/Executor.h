@@ -21,6 +21,7 @@ class Executor {
         void loadData(Schema& relation);
         void loadData(vector<Schema>& relations);
         void execute(string sql);
+        unique_ptr<ResultSet> executeQuery(string sql);
 
     private:
         Connection *conn = nullptr;
@@ -30,12 +31,13 @@ class Executor {
             vector<RuleMap>& recursiveRules, 
             map<string, vector<RuleMap*>>& recursiveRuleGroups, 
             DatalogProgram& pg);
-        bool checkEmptyDelta(map<string, vector<RuleMap*>>& recursiveRuleGroups);
+        bool checkEmptyDelta(map<string, vector<RuleMap*>>& recursiveRuleGroups, int iterateNum);
         void createDeltaTables(map<string, vector<RuleMap*>>& recursiveRuleGroups, 
             int iterateNum, 
             DatalogProgram& pg);
         void dropDeltaTables(map<string, vector<RuleMap*>>& recursiveRuleGroups, int iterateNum);
         void deduplicate(string dupTable, string noDupTable, Schema& relation);
-        void diff(string table1, string table2, string resultTable);
+        void diff(string tmpIdbDelta, string idb, string idbDelta);
         void moveData(string srcTable, string destTable);
+        int countRows(string table);
 };
