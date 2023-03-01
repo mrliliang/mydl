@@ -59,12 +59,12 @@ void Executor::recursiveEval(vector<RuleMap> &rules, DatalogProgram& pg) {
         iterateNum++;
 
         //TODO: create delta tables of the recursive idbs for current iteration
-        //FIXME: _delta_0可能没有用处
         this->createDeltaTables(recursiveRuleGroups, iterateNum, pg);
 
         for (auto group : recursiveRuleGroups) {
             string idb = group.first;
             Schema& relation = pg.getIdbRelation(idb);
+            string idbDeltaTable = idb + string("_delta_") + std::to_string(iterateNum);
 
             //TODO: create temporay tmp_m_delta table to store result before deduplication for current idb
             string tmpDeltaTable = idb + "tmp_m_delta";
@@ -75,7 +75,7 @@ void Executor::recursiveEval(vector<RuleMap> &rules, DatalogProgram& pg) {
                 //TODO: generate a set of sql for the delta rules of a recursive rule
                 SqlGenerator sqlGen;
                 vector<string> subQueries = sqlGen.generateRecursiveRuleEval(*rule, 
-                    recursiveRuleGroups, iterateNum, pg);
+                    recursiveRuleGroups, iterateNum - 1, pg);
                 queries.insert(queries.end(), subQueries.begin(), subQueries.end());
                 for (auto subquery : subQueries) {
                     string insertion = sqlGen.generateInsertion(tmpDeltaTable, subquery);
@@ -83,7 +83,7 @@ void Executor::recursiveEval(vector<RuleMap> &rules, DatalogProgram& pg) {
                 }
             }
 
-            //TODO: create m_delta table for the current idb to be used for deduplication later
+            //TODO: create m_delta table for the current idb to be used for deduplication
             string mDeltaTable = idb + "_m_delta";
             this->createTable(relation, mDeltaTable);
 
@@ -94,16 +94,22 @@ void Executor::recursiveEval(vector<RuleMap> &rules, DatalogProgram& pg) {
 
             //TODO: perform set difference between m_delta table and idb table, save the diff in 
             // idb delta table, then drop the m_delta table.
-            this->diff(mDeltaTable, idb, idb + "_delta");
+            this->diff(mDeltaTable, idb, idbDeltaTable);
             //TODO: drop m_delta table
             this->dropTable(mDeltaTable);
 
+            //TOTO: if current idb is non-linear, move current idb facts to idb_prev table
+            if (std::find(prevTables.begin(), prevTables.end(), idb)) {
+                string prevTable = idb + "_prev";
+                this->createTable(prevTable);
+                this->moveData(idb, prevTable);
+            }
+
             //TODO: merge new facts in idb delta table into idb table
-            this->mergeDelta(idb + "_delta", idb);
+            this->moveData(idbDeltaTable, idb);
         }
 
-        //TODO: drop all old delta tables
-        //FIXME: _delta_iterNum可能没有用处
+        //TODO: drop old delta tables in the last iteration
         this->dropDeltaTables(recursiveRuleGroups, iterateNum - 1);
 
         //TODO: check fixpoint
@@ -114,10 +120,8 @@ void Executor::recursiveEval(vector<RuleMap> &rules, DatalogProgram& pg) {
         this->dropTable(table);
     }
     
-    for (auto group : recursiveRuleGroups) {
-        string deltaTable = group + "_delta";
-        this->dropTable(deltaTable);
-    }
+    //TODO: drop delta tables in the final iteration
+    this->dropDeltaTables(recursiveRuleGroups, iterateNum);
 }
 
 void Executor::dropTable(string tableName) {
@@ -193,13 +197,19 @@ void Executor::execute(string sql) {
 
 void Executor::initDeltaTables(map<string, vector<RuleMap*>>& recursiveRuleGroups, 
     DatalogProgram& pg) {
-    //TODO: initialize delta_0, m_delta, common_delta
+    //TODO: initialize delta_0, m_delta, common_delta, tmp_m_delta
     for (auto group : recursiveRuleGroups) {
         string idb = group.first;
         vector<RuleMap*>& rules = group.second;
         string deltaTableName{idb + "_delta_0"};
         Schema& relation = pg.getIdbRelation(idb);
         this->createTable(relation, deltaTableName);
+
+        //TODO: common_delta
+
+        //TODO: m_delta
+
+        //TODO: tmp_m_delta
     }
 }
 
@@ -292,7 +302,6 @@ void Executor::diff(string table1, string table2, string resultTable) {
 }
 
 
-void Executor::mergeDelta(string deltaTable, string idbTable) {
-    //TODO: merge new facts in delta table into the idb table, to be completed
-
+void Executor::moveData(string srcTable, string destTable) {
+    //TODO: to be completed
 }

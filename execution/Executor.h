@@ -37,5 +37,5 @@ class Executor {
         void dropDeltaTables(map<string, vector<RuleMap*>>& recursiveRuleGroups, int iterateNum);
         void deduplicate(string dupTable, string noDupTable, Schema& relation);
         void diff(string table1, string table2, string resultTable);
-        void mergeDelta(string deltaTable, string idbTable);
+        void moveData(string srcTable, string destTable);
 };

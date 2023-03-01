@@ -52,6 +52,8 @@ void print(T&& a) {
 }
 
 int main(int argc, char *argv[]) {
-    string s = "abc"  "def"  "gh";
+    string abc = "abc";
+    string s = abc + std::to_string(123) + abc;
+    std::cout << abc << std::endl;
     std::cout << s << std::endl;
 }
