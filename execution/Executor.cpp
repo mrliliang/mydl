@@ -94,7 +94,7 @@ void Executor::recursiveEval(vector<RuleMap> &rules, DatalogProgram& pg) {
 
             //TODO: perform set difference between tmp_delta_nodup table and idb table, save the diff in 
             // idb delta table, then drop the tmp_delta_nodup table.
-            this->diff(tmpDeltaNodupTable, idb, idbDeltaTable);
+            this->diff(tmpDeltaNodupTable, idb, idbDeltaTable, relation);
             // drop tmp_delta_nodup table
             this->dropTable(tmpDeltaNodupTable);
 
@@ -266,7 +266,6 @@ bool Executor::checkEmptyDelta(map<string, vector<RuleMap*>>& recursiveRuleGroup
 void Executor::createDeltaTables(map<string, vector<RuleMap*>>& recursiveRuleGroups, 
     int iterateNum,
     DatalogProgram& pg) {
-    //TODO: to be competed
     for (auto group : recursiveRuleGroups) {
         string idb = group.first;
         Schema& relation = pg.getIdbRelation(idb);
@@ -292,7 +291,6 @@ void Executor::dropDeltaTables(map<string, vector<RuleMap*>>& recursiveRuleGroup
 
 
 void Executor::deduplicate(string dupTable, string noDupTable, Schema& relation) {
-    //TODO: perform deduplication, to be completed
     ostringstream oss;
     oss << "INSERT INTO "
         << noDupTable
@@ -312,16 +310,23 @@ void Executor::deduplicate(string dupTable, string noDupTable, Schema& relation)
 void Executor::diff(string tmpIdbDelta, string idb, string idbDelta) {
     //TODO: delta = tmpIdbDelta - idb, store delta in idbDelta table, to be complete
     int tmpIdbDeltaCount = this->countRows(tmpIdbDelta);
-    int idbCount = this->countRows(idb);
-    if (tmpIdbDeltaCount <= 0) {
+    if (tmpIdbDeltaCount == 0) {
         return;
     }
-    if (idbCount <= 0) {
+
+    int idbCount = this->countRows(idb);
+    if (idbCount == 0) {
         this->moveData(tmpIdbDelta, idbDelta);
         return;
     }
-    
 
+    //compute delta = tmpIdbDelta - idb
+    ostringstream oss;
+    oss << "INSERT INTO "
+        << idbDelta
+        << " SELECT * FROM "
+        << tmpIdbDelta
+        << " ";
 }
 
 
