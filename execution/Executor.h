@@ -37,7 +37,7 @@ class Executor {
             DatalogProgram& pg);
         void dropDeltaTables(map<string, vector<RuleMap*>>& recursiveRuleGroups, int iterateNum);
         void deduplicate(string dupTable, string noDupTable, Schema& relation);
-        void diff(string tmpIdbDelta, string idb, string idbDelta);
+        void diff(string tmpIdbDelta, string idb, string idbDelta, Schema& relation);
         void moveData(string srcTable, string destTable);
         int countRows(string table);
 };
