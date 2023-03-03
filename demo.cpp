@@ -57,9 +57,11 @@ unique_ptr<A> pointer(int v) {
 }
 
 int main(int argc, char *argv[]) {
-    unique_ptr<A> pa = std::make_unique<A>(10);
-    std::cout << pa->value() << std::endl;
+    ostringstream oss;
 
-    unique_ptr<A> pa1 = pointer(20);
-    std::cout << pa1->value() << std::endl;
+    oss << "hello hello hello";
+    std::cout << oss.str() << std::endl;
+
+    oss.str("world");
+    std::cout << oss.str() << std::endl;
 }

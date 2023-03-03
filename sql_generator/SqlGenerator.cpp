@@ -96,8 +96,10 @@ string SqlGenerator::generateRuleEval(RuleMap &rule, DatalogProgram& pg) {
             << groupBy;
     }
 
-    string insert = this->generateInsertion(rule.head.name, oss.str());
-    return insert;
+    return oss.str();
+
+    // string insert = this->generateInsertion(rule.head.name, oss.str());
+    // return insert;
 }
 
 string SqlGenerator::generateRulesEval(vector<RuleMap> &rules, bool recursive, DatalogProgram& pg) {
@@ -558,12 +560,89 @@ string SqlGenerator::generateGroupBy(AtomMap& head, DatalogProgram& pg) {
     return oss.str();
 }
 
-string SqlGenerator::generateIntersection() {
-    return "";
+string SqlGenerator::generateIntersection(string tmpIdbDelta, 
+            string idb, 
+            Schema& relation, 
+            map<int, string>& headAggregation) {
+    //TODO: generate sql to compute set intersection, to be complete
+    ostringstream oss;
+    for (auto it = relation.attributes.begin(); it != relation.attributes.end(); it++) {
+        if (it != relation.attributes.begin()) {
+            oss << ", ";
+        }
+        oss << idb
+            << "."
+            << it->name;
+    }
+    string projection{oss.str()};
+
+    string aggOp;
+    int aggAttrIndex = -1;
+    for (auto it : headAggregation) {
+        aggOp = it.second;
+        aggAttrIndex = it.first;
+    }
+
+    oss.str("");
+    for (int i = 0; i < relation.attributes.size(); i++) {
+        //FIXME: 此处执行aggregation是否正确？
+        string compareOp;
+        if (i != aggAttrIndex) {
+            compareOp = "=";
+        } else if (aggOp == "MIN") {
+            compareOp = ">=";
+        } else if (aggOp == "MAX") {
+            compareOp = "<=";
+        } else {
+            //TODO: how to handle other aggregation? to be completed
+
+        }
+
+        if (i != 0) {
+            oss << " AND ";
+        }
+        Attribute& attr = relation.attributes[i];
+        oss << tmpIdbDelta
+            << "."
+            << attr.name
+            << " "
+            << compareOp
+            << " "
+            << idb
+            << "."
+            << attr.name;
+    }
+    string constraints{oss.str()};
+
+    oss.str("");
+    oss << "SELECT "
+        << projection
+        << " FROM "
+        << idb
+        << " WHERE "
+        << constraints;
+    string intersection{oss.str()};
+
+    return intersection;
 }
 
-string SqlGenerator::generateSetDiff() {
-    return "";
+string SqlGenerator::generateSetDiff(string tmpIdbDelta, 
+            string idb, 
+            string idbDelta, 
+            Schema& relation, 
+            map<int, string>& headAggregation) {
+    //TODO: generate sql to compute set difference, to be completed
+    string intersection = this->generateIntersection(tmpIdbDelta, idb, relation, headAggregation);
+    ostringstream oss;
+    oss << "INSERT INTO "
+        << idbDelta
+        << " SELECT * FROM "
+        << tmpIdbDelta
+        << " WHERE NOT EXISTS "
+        << "("
+        << intersection
+        << ")";
+    return oss.str();
 }
 
 

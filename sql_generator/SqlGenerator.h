@@ -144,6 +144,13 @@ class SqlGenerator {
             vector<string>& negAtomAlias,
             DatalogProgram& pg);
         string generateGroupBy(AtomMap& head, DatalogProgram& pg);
-        string generateIntersection();
-        string generateSetDiff();
+        string generateIntersection(string tmpIdbDelta, 
+            string idb, 
+            Schema& relation, 
+            map<int, string>& headAggregation);
+        string generateSetDiff(string tmpIdbDelta, 
+            string idb, 
+            string idbDelta, 
+            Schema& relation, 
+            map<int, string>& headAggregation);
 };

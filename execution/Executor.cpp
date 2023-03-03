@@ -29,26 +29,38 @@ Executor::~Executor() {
 }
 
 void Executor::nonRecursiveEval(vector<RuleMap> &rules, DatalogProgram& pg) {
+    //for non-recursive rules, rules with the same idb head are in the same group
+    string idb = rules[0].head.name;
+    Schema& relation = pg.getIdbRelation(idb);
+    //create a temporary table to save the result with duplication
+    string tmpTable{idb + "_tmp"};
+    this->createTable(relation, tmpTable);
+
     SqlGenerator sqlGen;
-    // unique_ptr<Statement> stmt{this->conn->createStatement()};
     for (auto rule : rules) {
-        string evalStr{sqlGen.generateRuleEval(rule, pg)};
-        this->execute(evalStr);
-        //TODO: perform deduplication
-        
+        string query{sqlGen.generateRuleEval(rule, pg)};
+        //keep the evaluation result in the tmp table
+        string insert{sqlGen.generateInsertion(tmpTable, query)};
+        this->execute(insert);
     }
+    //perform deduplication in tmp table and save the result in idb table
+    this->deduplicate(tmpTable, idb, relation);
+    this->dropTable(tmpTable);
 }
 
 void Executor::recursiveEval(vector<RuleMap> &rules, DatalogProgram& pg) {
+    //rules with the same head idb are grouped together
     map<string, vector<RuleMap*>> recursiveRuleGroups;
     for (auto r : rules) {
         recursiveRuleGroups[r.head.name].emplace_back(&r);
     }
 
     //initialize delta tables for recursive idbs to store new facts in the current iteration
+    //FIXME: delta idb初始化是否正确？
     this->initDeltaTables(recursiveRuleGroups, pg);
 
     //initialize prev tables for recursive idbs to store all facts before the current iteration
+    //FIXME: prev table初始化是否正确？
     vector<string> prevTables;
     this->initPrevTables(prevTables, rules, recursiveRuleGroups, pg);
 
@@ -71,7 +83,15 @@ void Executor::recursiveEval(vector<RuleMap> &rules, DatalogProgram& pg) {
             this->createTable(relation, tmpDeltaDupTable);
 
             vector<string> queries;
+            map<int, string> headAggregation;
             for (RuleMap* rule : group.second) {
+                AtomMap& head = rule->head;
+                for (int i = 0; i < head.argList.size(); i++) {
+                    if (head.argList[i].isAgg()) {
+                        headAggregation[i] = head.argList[i].aggmap.aggOp;
+                    }
+                }
+
                 //generate a set of sql for the delta rules of a recursive rule
                 SqlGenerator sqlGen;
                 vector<string> subQueries = sqlGen.generateRecursiveRuleEval(*rule, 
@@ -94,7 +114,8 @@ void Executor::recursiveEval(vector<RuleMap> &rules, DatalogProgram& pg) {
 
             //TODO: perform set difference between tmp_delta_nodup table and idb table, save the diff in 
             // idb delta table, then drop the tmp_delta_nodup table.
-            this->diff(tmpDeltaNodupTable, idb, idbDeltaTable, relation);
+            //FIXME: diff做aggregation操作可能结果不正确
+            this->diff(tmpDeltaNodupTable, idb, idbDeltaTable, relation, headAggregation);
             // drop tmp_delta_nodup table
             this->dropTable(tmpDeltaNodupTable);
 
@@ -133,7 +154,6 @@ void Executor::dropTable(string tableName) {
     
     string sqlStr = oss.str();
     std::cout << sqlStr << std::endl;
-    // unique_ptr<Statement> stmt{this->conn->createStatement()};
     this->execute(sqlStr);
 }
 
@@ -157,7 +177,6 @@ void Executor::createTable(Schema& relation, string tableName) {
     oss << ");";
     string sqlStr = oss.str();
     std::cout << sqlStr << std::endl;
-    // unique_ptr<Statement> stmt{this->conn->createStatement()};
     this->execute(sqlStr);
 }
 
@@ -178,7 +197,6 @@ void Executor::loadData(Schema& relation) {
         << "` FIELDS TERMINATED BY ',';";
     string sqlStr{oss.str()};
     std::cout << sqlStr << std::endl;
-    // unique_ptr<Statement> stmt{this->conn->createStatement()};
     this->execute(sqlStr);
 }
 
@@ -307,7 +325,11 @@ void Executor::deduplicate(string dupTable, string noDupTable, Schema& relation)
 }
 
 
-void Executor::diff(string tmpIdbDelta, string idb, string idbDelta) {
+void Executor::diff(string tmpIdbDelta, 
+    string idb, 
+    string idbDelta, 
+    Schema& relation, 
+    map<int, string>& headAggregation) {
     //TODO: delta = tmpIdbDelta - idb, store delta in idbDelta table, to be complete
     int tmpIdbDeltaCount = this->countRows(tmpIdbDelta);
     if (tmpIdbDeltaCount == 0) {
@@ -321,12 +343,15 @@ void Executor::diff(string tmpIdbDelta, string idb, string idbDelta) {
     }
 
     //compute delta = tmpIdbDelta - idb
-    ostringstream oss;
-    oss << "INSERT INTO "
-        << idbDelta
-        << " SELECT * FROM "
-        << tmpIdbDelta
-        << " ";
+    // ostringstream oss;
+    // oss << "INSERT INTO "
+    //     << idbDelta
+    //     << " SELECT * FROM "
+    //     << tmpIdbDelta
+    //     << " ";
+    SqlGenerator sqlGen;
+    string diffSql{sqlGen.generateSetDiff(tmpIdbDelta, idb, idbDelta, relation, headAggregation)};
+    this->execute(diffSql);
 }
 
 
