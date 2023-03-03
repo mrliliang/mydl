@@ -44,6 +44,7 @@ void Executor::nonRecursiveEval(vector<RuleMap> &rules, DatalogProgram& pg) {
         this->execute(insert);
     }
     //perform deduplication in tmp table and save the result in idb table
+    //FIXME: 是否需要考虑aggregation?
     this->deduplicate(tmpTable, idb, relation);
     this->dropTable(tmpTable);
 }
