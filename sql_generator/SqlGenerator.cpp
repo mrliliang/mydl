@@ -631,16 +631,56 @@ string SqlGenerator::generateSetDiff(string tmpIdbDelta,
             string idbDelta, 
             Schema& relation, 
             map<int, string>& headAggregation) {
-    //TODO: generate sql to compute set difference, to be completed
-    string intersection = this->generateIntersection(tmpIdbDelta, idb, relation, headAggregation);
+    //generate sql to compute set difference
+    string aggOp;
+    int aggAttrIndex = -1;
+    for (auto it : headAggregation) {
+        aggOp = it.second;
+        aggAttrIndex = it.first;
+    }
+    
     ostringstream oss;
+    oss.str("");
+    for (int i = 0; i < relation.attributes.size(); i++) {
+        //FIXME: 此处执行aggregation是否正确？
+        string compareOp;
+        if (i != aggAttrIndex) {
+            compareOp = "=";
+        } else if (aggOp == "MIN") {
+            compareOp = ">=";
+        } else if (aggOp == "MAX") {
+            compareOp = "<=";
+        } else {
+            //TODO: how to handle other aggregation? to be completed
+        }
+
+        if (i != 0) {
+            oss << " AND ";
+        }
+        Attribute& attr = relation.attributes[i];
+        oss << tmpIdbDelta
+            << "."
+            << attr.name
+            << " "
+            << compareOp
+            << " "
+            << idb
+            << "."
+            << attr.name;
+    }
+    string constraints{oss.str()};
+
+    oss.str("");
     oss << "INSERT INTO "
         << idbDelta
         << " SELECT * FROM "
         << tmpIdbDelta
         << " WHERE NOT EXISTS "
         << "("
-        << intersection
+        << "SELECT * FROM "
+        << idb
+        << " WHERE "
+        << constraints
         << ")";
     return oss.str();
 }

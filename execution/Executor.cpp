@@ -120,14 +120,15 @@ void Executor::recursiveEval(vector<RuleMap> &rules, DatalogProgram& pg) {
             // drop tmp_delta_nodup table
             this->dropTable(tmpDeltaNodupTable);
 
-            //TOTO: if current idb is non-linear, move current idb facts to idb_prev table
+            //TODO: if current idb is non-linear recursive, move current idb facts to idb_prev table
             string prevTable = idb + "_prev";
             if (std::find(prevTables.begin(), prevTables.end(), prevTable) != prevTables.end()) {
                 this->createTable(relation, prevTable);
                 this->moveData(idb, prevTable);
             }
 
-            //merge new facts in idb delta table into idb table
+            //TODO: merge new facts in idb delta table into idb table
+            //FIXME: is it right the merge delta into idb here?
             this->moveData(idbDeltaTable, idb);
         }
 
@@ -230,14 +231,14 @@ void Executor::initDeltaTables(map<string, vector<RuleMap*>>& recursiveRuleGroup
         string deltaTableName{idb + "_delta_0"};
         Schema& relation = pg.getIdbRelation(idb);
         this->createTable(relation, deltaTableName);
-
+        //copy idb to idb_delta_0
         this->moveData(idb, deltaTableName);
 
-        //TODO: common_delta
+        //TODO: common_delta, may not need
 
-        //TODO: m_delta
+        //TODO: m_delta, may not need
 
-        //TODO: tmp_m_delta
+        //TODO: tmp_m_delta, may not need
     }
 }
 
@@ -314,7 +315,7 @@ void Executor::deduplicate(string dupTable, string noDupTable, Schema& relation)
     oss << "INSERT INTO "
         << noDupTable
         << " SELECT * FROM "
-        << noDupTable
+        << dupTable
         << " GROUP BY ";
     for (auto it = relation.attributes.begin(); it != relation.attributes.end(); it++) {
         if (it != relation.attributes.begin()) {
@@ -331,7 +332,7 @@ void Executor::diff(string tmpIdbDelta,
     string idbDelta, 
     Schema& relation, 
     map<int, string>& headAggregation) {
-    //TODO: delta = tmpIdbDelta - idb, store delta in idbDelta table, to be complete
+    //delta = tmpIdbDelta - idb, store delta in idbDelta table
     int tmpIdbDeltaCount = this->countRows(tmpIdbDelta);
     if (tmpIdbDeltaCount == 0) {
         return;
@@ -343,13 +344,6 @@ void Executor::diff(string tmpIdbDelta,
         return;
     }
 
-    //compute delta = tmpIdbDelta - idb
-    // ostringstream oss;
-    // oss << "INSERT INTO "
-    //     << idbDelta
-    //     << " SELECT * FROM "
-    //     << tmpIdbDelta
-    //     << " ";
     SqlGenerator sqlGen;
     string diffSql{sqlGen.generateSetDiff(tmpIdbDelta, idb, idbDelta, relation, headAggregation)};
     this->execute(diffSql);
