@@ -22,6 +22,12 @@ class A {
             std::cout << "A(A& a)" << std::endl;
             this->v = a.value();
         }
+
+        A(A&& a) {
+            std::cout << "A(A&& a)" << std::endl;
+            this->v = a.value();
+        }
+
         A(int a) : v{a} {
             std::cout << "A(int a)" << std::endl;
         }
@@ -57,11 +63,26 @@ unique_ptr<A> pointer(int v) {
 }
 
 int main(int argc, char *argv[]) {
-    ostringstream oss;
+    vector<A> vec;
+    vec.emplace_back(A(10));
+    vec.emplace_back(A(20));
+    vec.emplace_back(A(30));
 
-    oss << "hello hello hello";
-    std::cout << oss.str() << std::endl;
+    int i = 0;
+    for (auto& v : vec) {
+        std::cout << "i = " << i << std::endl;
+        std::cout << "v.value = " << v.value() << ", " << "vec[" << i << "].value = " << vec[i].value() << std::endl;
+        std::cout << &v << ", " << &vec[i] << std::endl;
+        i++;
+    }
 
-    oss.str("world");
-    std::cout << oss.str() << std::endl;
+    map<int, string> kvs;
+    kvs[1] = "abc";
+    kvs[2] = "def";
+    kvs[3] = "ghi";
+    for (auto& kv : kvs) {
+        std::cout << kv.first << ": " << kv.second << std::endl;
+    }
+    
+
 }

@@ -10,7 +10,7 @@
             "type": "cppdbg",
             "request": "launch",
             "program": "${workspaceFolder}/build/engine",
-            "args": ["/Users/liliang/VSCode/mydatalog/benchmark_datalog_programs/cc.datalog"],
+            "args": ["/Users/liliang/VSCode/mydatalog/benchmark_datalog_programs/tc.datalog"],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",
             "environment": [],

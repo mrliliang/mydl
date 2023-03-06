@@ -41,6 +41,7 @@ void Executor::nonRecursiveEval(vector<RuleMap> &rules, DatalogProgram& pg) {
         string query{sqlGen.generateRuleEval(rule, pg)};
         //keep the evaluation result in the tmp table idb_tmp
         string insert{sqlGen.generateInsertion(tmpTable, query)};
+        std::cout << insert << std::endl;
         this->execute(insert);
     }
     //perform deduplication in tmp table and save the result in idb table
@@ -52,7 +53,7 @@ void Executor::nonRecursiveEval(vector<RuleMap> &rules, DatalogProgram& pg) {
 void Executor::recursiveEval(vector<RuleMap> &rules, DatalogProgram& pg) {
     //rules with the same head idb are grouped together
     map<string, vector<RuleMap*>> recursiveRuleGroups;
-    for (auto r : rules) {
+    for (auto& r : rules) {
         recursiveRuleGroups[r.head.name].emplace_back(&r);
     }
 
@@ -74,7 +75,7 @@ void Executor::recursiveEval(vector<RuleMap> &rules, DatalogProgram& pg) {
         //create delta tables of the recursive idbs for current iteration
         this->createDeltaTables(recursiveRuleGroups, iterateNum, pg);
 
-        for (auto group : recursiveRuleGroups) {
+        for (auto& group : recursiveRuleGroups) {
             string idb = group.first;
             Schema& relation = pg.getIdbRelation(idb);
             string idbDeltaTable = idb + string("_delta_") + std::to_string(iterateNum);
@@ -98,8 +99,9 @@ void Executor::recursiveEval(vector<RuleMap> &rules, DatalogProgram& pg) {
                 vector<string> subQueries = sqlGen.generateRecursiveRuleEval(*rule, 
                     recursiveRuleGroups, iterateNum - 1, pg);
                 queries.insert(queries.end(), subQueries.begin(), subQueries.end());
-                for (auto subquery : subQueries) {
+                for (auto& subquery : subQueries) {
                     string insertion = sqlGen.generateInsertion(tmpDeltaDupTable, subquery);
+                    std::cout << insertion << std::endl;
                     this->execute(insertion);
                 }
             }
@@ -225,7 +227,7 @@ unique_ptr<ResultSet> Executor::executeQuery(string sql) {
 void Executor::initDeltaTables(map<string, vector<RuleMap*>>& recursiveRuleGroups, 
     DatalogProgram& pg) {
     //TODO: initialize delta_0, m_delta, common_delta, tmp_m_delta
-    for (auto group : recursiveRuleGroups) {
+    for (auto& group : recursiveRuleGroups) {
         string idb = group.first;
         vector<RuleMap*>& rules = group.second;
         string deltaTableName{idb + "_delta_0"};
@@ -249,9 +251,9 @@ void Executor::initPrevTables(vector<string> prevTables,
             DatalogProgram& pg) {
     //TODO: initialize prev table for nonlinear recursive idbs to store all facts till the last iteration
     vector<string> nonlinearIdbs;
-    for (auto rule : recursiveRules) {
+    for (auto& rule : recursiveRules) {
         vector<string> candidates;
-        for (auto atom : rule.body.atoms) {
+        for (auto& atom : rule.body.atoms) {
             if (recursiveRuleGroups.find(atom.name) != recursiveRuleGroups.end()) {
                 candidates.emplace_back(atom.name);
             }
@@ -261,7 +263,7 @@ void Executor::initPrevTables(vector<string> prevTables,
         }
     }
 
-    for (auto idb : nonlinearIdbs) {
+    for (auto& idb : nonlinearIdbs) {
         Schema& relation = pg.getIdbRelation(idb);
         string prevTableName = idb + "_prev";
         prevTables.emplace_back(prevTableName);
@@ -271,7 +273,7 @@ void Executor::initPrevTables(vector<string> prevTables,
 
 
 bool Executor::checkEmptyDelta(map<string, vector<RuleMap*>>& recursiveRuleGroups, int iterateNum) {
-    for (auto group : recursiveRuleGroups) {
+    for (auto& group : recursiveRuleGroups) {
         string idb = group.first;
         string idbDeltaTable = idb + string("_delta_") + std::to_string(iterateNum);
         int rowCount = this->countRows(idbDeltaTable);
@@ -286,7 +288,7 @@ bool Executor::checkEmptyDelta(map<string, vector<RuleMap*>>& recursiveRuleGroup
 void Executor::createDeltaTables(map<string, vector<RuleMap*>>& recursiveRuleGroups, 
     int iterateNum,
     DatalogProgram& pg) {
-    for (auto group : recursiveRuleGroups) {
+    for (auto& group : recursiveRuleGroups) {
         string idb = group.first;
         Schema& relation = pg.getIdbRelation(idb);
         ostringstream oss;
@@ -299,7 +301,7 @@ void Executor::createDeltaTables(map<string, vector<RuleMap*>>& recursiveRuleGro
 
 
 void Executor::dropDeltaTables(map<string, vector<RuleMap*>>& recursiveRuleGroups, int iterateNum) {
-    for (auto group : recursiveRuleGroups) {
+    for (auto& group : recursiveRuleGroups) {
         string idb = group.first;
         ostringstream oss;
         oss << idb 

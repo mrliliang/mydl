@@ -53,8 +53,10 @@ int main(int argc, char *args[])
             evalRules.push_back(prog.getRule(r));
         }
         if (ruleGroup.isRecursive) {
+            std::cout << "Evaluating recursive rules" << std::endl;
             executor.recursiveEval(evalRules, prog);
         } else {
+            std::cout << "Evaluating non-recursive rules" << std::endl;
             executor.nonRecursiveEval(evalRules, prog);
         }
     }

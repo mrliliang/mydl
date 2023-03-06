@@ -297,7 +297,7 @@ vector<string> SqlGenerator::generateFromRecursive(vector<vector<string>>& delta
         vector<string>& bodyAtomAlias) {
     //TODO: generate from clauses of delta rules, to be completed.
     vector<string> fromStrs;
-    for (auto group : deltaBodyGroups) {
+    for (auto& group : deltaBodyGroups) {
         ostringstream oss;
         oss << "FROM ";
         for (int atomIndex = 0; atomIndex < bodyAtomAlias.size(); atomIndex++) {
@@ -319,7 +319,7 @@ string SqlGenerator::generateJoin(vector<AtomMap>& bodyAtoms,
     DatalogProgram& pg) {
 
     vector<string> equalStrs;
-    for (auto argIt : joinArgs) {
+    for (auto& argIt : joinArgs) {
         string lastArg;
         string argName = argIt.first;
         for (auto atomIt : argIt.second) {
@@ -333,7 +333,7 @@ string SqlGenerator::generateJoin(vector<AtomMap>& bodyAtoms,
                     equalStr = lastArg + " = " + currentArg;
                     equalStrs.emplace_back(equalStr);
                 }
-                string lastArg = currentArg;
+                lastArg = currentArg;
             }
         }
     }
@@ -354,14 +354,14 @@ string SqlGenerator::generateComparision(vector<AtomMap>& bodyAtoms,
     DatalogProgram& pg) {
 
     vector<string> comparisonItems;
-    for (auto atomIt : comparisonArgs) {
+    for (auto& atomIt : comparisonArgs) {
         int atomIndex = atomIt.first;
         string atomName = bodyAtoms[atomIndex].name;
         string atomAlias = bodyAtomAlias[atomIndex];
-        for (auto argIt : atomIt.second) {
+        for (auto& argIt : atomIt.second) {
             int argIndex = argIt.first;
             string attr = pg.getRelation(atomName).attributes[argIndex].name;
-            for (auto cmp : argIt.second) {
+            for (auto& cmp : argIt.second) {
                 ostringstream oss;
                 if (cmp.otherSideType == ComparisonStruct::TYPE_NUM) {
                     if (cmp.baseVarSide == ComparisonStruct::LSIDE) {
@@ -429,11 +429,11 @@ string SqlGenerator::generateConstantConstraint(vector<AtomMap>& bodyAtoms,
     DatalogProgram& pg) {
     
     vector<string> constantStrs;
-    for (auto atomIt : constantArgs) {
+    for (auto& atomIt : constantArgs) {
         int atomIndex = atomIt.first;
         string atomName = bodyAtoms[atomIndex].name;
         string atomAlias = bodyAtomAlias[atomIt.first];
-        for (auto argIt : atomIt.second) {
+        for (auto& argIt : atomIt.second) {
             ostringstream oss;
             int argIndex = argIt.first;
             Attribute& attr = pg.getRelation(atomName).attributes[argIndex]; 
@@ -929,10 +929,10 @@ void deltaBodyGroups(vector<AtomMap>& bodyAtoms,
     map<string, vector<RuleMap*>>& recursiveRuleGroups,
     int iterateNum, 
     vector<vector<string>>& deltaGroups) {
-    //TODO: generate the bodies of delta rules, to be completed.
+    //generate the bodies of delta rules, to be completed.
 
     int recursiveIdbCount = 0;
-    for (auto atom : bodyAtoms) {
+    for (auto& atom : bodyAtoms) {
         string idb = atom.name;
         if (recursiveRuleGroups.find(idb) != recursiveRuleGroups.end()) {
             recursiveIdbCount++;
@@ -940,19 +940,19 @@ void deltaBodyGroups(vector<AtomMap>& bodyAtoms,
     }
 
     deltaGroups = vector<vector<string>>(std::pow(2, recursiveIdbCount) + 1, vector<string>{});
-    for (auto atom : bodyAtoms) {
+    for (auto& atom : bodyAtoms) {
         if (recursiveRuleGroups.find(atom.name) == recursiveRuleGroups.end()) {
-            for (auto deltaGroup : deltaGroups) {
+            for (auto& deltaGroup : deltaGroups) {
                 deltaGroup.emplace_back(atom.name);
             }
         } else {
             string prevAtom{atom.name + "_prev"};
-            string deltaAtom{atom.name + string("_delta") + std::to_string(iterateNum)};
+            string deltaAtom{atom.name + string("_delta_") + std::to_string(iterateNum)};
             for (int i = 0; i < deltaGroups.size() / 2; i++) {
                 deltaGroups[2 * i + 1].emplace_back(prevAtom);
                 deltaGroups[2 * i + 2].emplace_back(deltaAtom);
             }
         }
     }
-    deltaGroups.erase(deltaGroups.begin(), deltaGroups.begin() + 1);
+    deltaGroups.erase(deltaGroups.begin(), deltaGroups.begin() + 2);
 }
