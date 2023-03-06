@@ -53,9 +53,9 @@ int main(int argc, char *args[])
             evalRules.push_back(prog.getRule(r));
         }
         if (ruleGroup.isRecursive) {
-            executor.nonRecursiveEval(evalRules, prog);
-        } else {
             executor.recursiveEval(evalRules, prog);
+        } else {
+            executor.nonRecursiveEval(evalRules, prog);
         }
     }
 

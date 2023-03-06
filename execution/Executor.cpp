@@ -32,14 +32,14 @@ void Executor::nonRecursiveEval(vector<RuleMap> &rules, DatalogProgram& pg) {
     //for non-recursive rules, rules with the same idb head are in the same group
     string idb = rules[0].head.name;
     Schema& relation = pg.getIdbRelation(idb);
-    //create a temporary table to save the result with duplication
+    //create a temporary table idb_tmp to save the result with duplication
     string tmpTable{idb + "_tmp"};
     this->createTable(relation, tmpTable);
 
     SqlGenerator sqlGen;
     for (auto rule : rules) {
         string query{sqlGen.generateRuleEval(rule, pg)};
-        //keep the evaluation result in the tmp table
+        //keep the evaluation result in the tmp table idb_tmp
         string insert{sqlGen.generateInsertion(tmpTable, query)};
         this->execute(insert);
     }
@@ -365,7 +365,10 @@ int Executor::countRows(string table) {
     oss << "SELECT COUNT(*) FROM "
         << table;
     unique_ptr<ResultSet> ret = this->executeQuery(oss.str());
-    int count = ret->getInt(1);
+    int count = 0;
+    while (ret->next()) {
+        count = ret->getInt(1);
+    }
     return count;
 }
 
