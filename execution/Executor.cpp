@@ -245,7 +245,7 @@ void Executor::initDeltaTables(map<string, vector<RuleMap*>>& recursiveRuleGroup
 }
 
 
-void Executor::initPrevTables(vector<string> prevTables, 
+void Executor::initPrevTables(vector<string>& prevTables, 
             vector<RuleMap>& recursiveRules, 
             map<string, vector<RuleMap*>>& recursiveRuleGroups, 
             DatalogProgram& pg) {

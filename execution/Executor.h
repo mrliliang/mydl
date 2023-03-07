@@ -27,7 +27,7 @@ class Executor {
         Connection *conn = nullptr;
 
         void initDeltaTables(map<string, vector<RuleMap*>>& recursiveRuleGroups, DatalogProgram& pg);
-        void initPrevTables(vector<string> prevTables, 
+        void initPrevTables(vector<string>& prevTables, 
             vector<RuleMap>& recursiveRules, 
             map<string, vector<RuleMap*>>& recursiveRuleGroups, 
             DatalogProgram& pg);

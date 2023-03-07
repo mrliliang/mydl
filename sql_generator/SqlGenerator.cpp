@@ -939,7 +939,8 @@ void deltaBodyGroups(vector<AtomMap>& bodyAtoms,
         }
     }
 
-    deltaGroups = vector<vector<string>>(std::pow(2, recursiveIdbCount) + 1, vector<string>{});
+    // deltaGroups = vector<vector<string>>(std::pow(2, recursiveIdbCount) + 1, vector<string>{});
+    deltaGroups.emplace_back(vector<string>{});
     for (auto& atom : bodyAtoms) {
         if (recursiveRuleGroups.find(atom.name) == recursiveRuleGroups.end()) {
             for (auto& deltaGroup : deltaGroups) {
@@ -948,11 +949,24 @@ void deltaBodyGroups(vector<AtomMap>& bodyAtoms,
         } else {
             string prevAtom{atom.name + "_prev"};
             string deltaAtom{atom.name + string("_delta_") + std::to_string(iterateNum)};
-            for (int i = 0; i < deltaGroups.size() / 2; i++) {
-                deltaGroups[2 * i + 1].emplace_back(prevAtom);
-                deltaGroups[2 * i + 2].emplace_back(deltaAtom);
+            // for (int i = 0; i < deltaGroups.size() / 2; i++) {
+            //     deltaGroup[i].emplace_back(deltaGroup[i].back());
+            //     deltaGroups[2 * i + 1].emplace_back(prevAtom);
+            //     deltaGroups[2 * i + 2].emplace_back(deltaAtom);
+            // }
+
+            vector<vector<string>> childrenGroups;
+            for (auto& group : deltaGroups) {
+                vector<string> childGroup{group};
+                childGroup.emplace_back(deltaAtom);
+                childrenGroups.emplace_back(childGroup);
+                group.emplace_back(prevAtom);
             }
+            deltaGroups.insert(deltaGroups.end(), childrenGroups.begin(), childrenGroups.end());
         }
     }
-    deltaGroups.erase(deltaGroups.begin(), deltaGroups.begin() + 2);
+
+    if (recursiveIdbCount >= 1) {
+        deltaGroups.erase(deltaGroups.begin(), deltaGroups.begin() + 1);
+    }
 }

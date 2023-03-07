@@ -68,21 +68,16 @@ int main(int argc, char *argv[]) {
     vec.emplace_back(A(20));
     vec.emplace_back(A(30));
 
-    int i = 0;
-    for (auto& v : vec) {
-        std::cout << "i = " << i << std::endl;
-        std::cout << "v.value = " << v.value() << ", " << "vec[" << i << "].value = " << vec[i].value() << std::endl;
-        std::cout << &v << ", " << &vec[i] << std::endl;
-        i++;
+    vector<A> copy{vec};
+    copy.emplace_back(A(40));
+    std::cout << "copy: " << std::endl;
+    for (auto& v : copy) {
+        std::cout << v.value() << std::endl;
     }
 
-    map<int, string> kvs;
-    kvs[1] = "abc";
-    kvs[2] = "def";
-    kvs[3] = "ghi";
-    for (auto& kv : kvs) {
-        std::cout << kv.first << ": " << kv.second << std::endl;
+    std::cout << "vec: " << std::endl;
+    for (auto& v : vec) {
+        std::cout << v.value() << std::endl;
     }
-    
 
 }
