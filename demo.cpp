@@ -63,21 +63,10 @@ unique_ptr<A> pointer(int v) {
 }
 
 int main(int argc, char *argv[]) {
-    vector<A> vec;
-    vec.emplace_back(A(10));
-    vec.emplace_back(A(20));
-    vec.emplace_back(A(30));
+    string s1 = "abc";
+    string s2 = "ghi";
+    string s3 = s1 + "def" + "ghi" + "jkl";
 
-    vector<A> copy{vec};
-    copy.emplace_back(A(40));
-    std::cout << "copy: " << std::endl;
-    for (auto& v : copy) {
-        std::cout << v.value() << std::endl;
-    }
-
-    std::cout << "vec: " << std::endl;
-    for (auto& v : vec) {
-        std::cout << v.value() << std::endl;
-    }
+    std::cout << s3 << std::endl;
 
 }

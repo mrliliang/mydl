@@ -23,6 +23,8 @@ const string ComparisonStruct::RSIDE = "r";
 const string ComparisonStruct::TYPE_VAR = "var";
 const string ComparisonStruct::TYPE_NUM = "num";
 
+const string SqlGenerator::BACK_QUOTE = "`";
+
 
 
 string SqlGenerator::generateRuleEval(RuleMap &rule, DatalogProgram& pg) {
@@ -197,7 +199,9 @@ vector<string> SqlGenerator::generateRecursiveRuleEval(RuleMap& rule,
 string SqlGenerator::generateInsertion(string relation, string query) {
     ostringstream oss;
     oss << "INSERT INTO "
+        << SqlGenerator::BACK_QUOTE
         << relation
+        << SqlGenerator::BACK_QUOTE
         << " "
         << query;
     return oss.str();
@@ -222,24 +226,40 @@ string SqlGenerator::generateSelection(AtomMap& head,
         if (arg.isVar()) {
             int bodyAtomIndex = headArgBodyIndex[argIndex].var.first;
             int argIndexInAtom = headArgBodyIndex[argIndex].var.second;
-            oss << bodyAtomAlias[bodyAtomIndex]
+            oss << SqlGenerator::BACK_QUOTE
+                << bodyAtomAlias[bodyAtomIndex]
+                << SqlGenerator::BACK_QUOTE
                 << "."
-                << pg.getRelation(bodyAtoms[bodyAtomIndex].name).attributes[argIndexInAtom].name;
+                << SqlGenerator::BACK_QUOTE
+                << pg.getRelation(bodyAtoms[bodyAtomIndex].name).attributes[argIndexInAtom].name
+                << SqlGenerator::BACK_QUOTE;
         } else if (arg.isAgg()) {
-            oss << arg.aggmap.aggOp
-                << "(";
+            if (arg.aggmap.aggOp == "COUNT_DISTINCT") {
+                oss << "COUNT(DISTINCT ";
+            } else {
+                oss << arg.aggmap.aggOp
+                    << "(";
+            }
             if (arg.aggmap.aggArg.isAttribute()) {
                 int bodyAtomIndex = headArgBodyIndex[argIndex].agg.attr.first;
                 int argIndexInAtom = headArgBodyIndex[argIndex].agg.attr.second;
-                oss << bodyAtomAlias[bodyAtomIndex]
+                oss << SqlGenerator::BACK_QUOTE
+                    << bodyAtomAlias[bodyAtomIndex]
+                    << SqlGenerator::BACK_QUOTE
                     << "."
-                    << pg.getRelation(bodyAtoms[bodyAtomIndex].name).attributes[argIndexInAtom].name;
+                    << SqlGenerator::BACK_QUOTE
+                    << pg.getRelation(bodyAtoms[bodyAtomIndex].name).attributes[argIndexInAtom].name
+                    << SqlGenerator::BACK_QUOTE;
             } else if (arg.aggmap.aggArg.isMath()) {
                 int lhsBodyAtomIndex = headArgBodyIndex[argIndex].agg.lhs.first;
                 int lhsArgIndexInAtom = headArgBodyIndex[argIndex].agg.lhs.second;
-                oss << bodyAtomAlias[lhsBodyAtomIndex]
+                oss << SqlGenerator::BACK_QUOTE
+                    << bodyAtomAlias[lhsBodyAtomIndex]
+                    << SqlGenerator::BACK_QUOTE
                     << "."
-                    << pg.getRelation(bodyAtoms[lhsBodyAtomIndex].name).attributes[lhsArgIndexInAtom].name;
+                    << SqlGenerator::BACK_QUOTE
+                    << pg.getRelation(bodyAtoms[lhsBodyAtomIndex].name).attributes[lhsArgIndexInAtom].name
+                    << SqlGenerator::BACK_QUOTE;
                 
                 oss << " "
                     << headArgBodyIndex[argIndex].agg.mathOp
@@ -247,17 +267,25 @@ string SqlGenerator::generateSelection(AtomMap& head,
 
                 int rhsBodyAtomIndex = headArgBodyIndex[argIndex].agg.rhs.first;
                 int rhsArgIndexInAtom = headArgBodyIndex[argIndex].agg.rhs.second;
-                oss << bodyAtomAlias[rhsBodyAtomIndex]
+                oss << SqlGenerator::BACK_QUOTE
+                    << bodyAtomAlias[rhsBodyAtomIndex]
+                    << SqlGenerator::BACK_QUOTE
                     << "."
-                    << pg.getRelation(bodyAtoms[rhsBodyAtomIndex].name).attributes[rhsArgIndexInAtom].name;
+                    << SqlGenerator::BACK_QUOTE
+                    << pg.getRelation(bodyAtoms[rhsBodyAtomIndex].name).attributes[rhsArgIndexInAtom].name
+                    << SqlGenerator::BACK_QUOTE;
             }
             oss << ")";
         } else if (arg.isMathExpr()) {
             int lhsBodyAtomIndex = headArgBodyIndex[argIndex].math.lhs.first;
             int lhsArgIndexInAtom = headArgBodyIndex[argIndex].math.lhs.second;
-            oss << bodyAtomAlias[lhsBodyAtomIndex]
+            oss << SqlGenerator::BACK_QUOTE
+                << bodyAtomAlias[lhsBodyAtomIndex]
+                << SqlGenerator::BACK_QUOTE
                 << "."
-                << pg.getRelation(bodyAtoms[lhsBodyAtomIndex].name).attributes[lhsArgIndexInAtom].name;
+                << SqlGenerator::BACK_QUOTE
+                << pg.getRelation(bodyAtoms[lhsBodyAtomIndex].name).attributes[lhsArgIndexInAtom].name
+                << SqlGenerator::BACK_QUOTE;
 
             oss << " "
                 << headArgBodyIndex[argIndex].math.mathOp
@@ -265,15 +293,21 @@ string SqlGenerator::generateSelection(AtomMap& head,
 
             int rhsBodyAtomIndex = headArgBodyIndex[argIndex].math.rhs.first;
             int rhsArgIndexInAtom = headArgBodyIndex[argIndex].math.rhs.second;
-            oss << bodyAtomAlias[rhsBodyAtomIndex]
+            oss << SqlGenerator::BACK_QUOTE
+                << bodyAtomAlias[rhsBodyAtomIndex]
+                << SqlGenerator::BACK_QUOTE
                 << "."
-                << pg.getRelation(bodyAtoms[rhsBodyAtomIndex].name).attributes[rhsArgIndexInAtom].name;
+                << SqlGenerator::BACK_QUOTE
+                << pg.getRelation(bodyAtoms[rhsBodyAtomIndex].name).attributes[rhsArgIndexInAtom].name
+                << SqlGenerator::BACK_QUOTE;
         } else if (arg.isConst()) {
             oss << headArgBodyIndex[argIndex].constant;
         }
 
         oss << " AS "
-            << pg.getRelation(head.name).attributes[argIndex].name;
+            << SqlGenerator::BACK_QUOTE
+            << pg.getRelation(head.name).attributes[argIndex].name
+            << SqlGenerator::BACK_QUOTE;
     }
 
     return oss.str();
@@ -286,9 +320,13 @@ string SqlGenerator::generateFrom(vector<AtomMap>& bodyAtoms, vector<string>& bo
         if (i != 0) {
             oss << ", ";
         }
-        oss << bodyAtoms[i].name
+        oss << SqlGenerator::BACK_QUOTE
+            << bodyAtoms[i].name
+            << SqlGenerator::BACK_QUOTE
             << " "
-            << bodyAtomAlias[i];
+            << SqlGenerator::BACK_QUOTE
+            << bodyAtomAlias[i]
+            << SqlGenerator::BACK_QUOTE;
     }
     return oss.str();
 }
@@ -304,14 +342,19 @@ vector<string> SqlGenerator::generateFromRecursive(vector<vector<string>>& delta
             if (atomIndex != 0) {
                 oss << ", ";
             }
-            oss << group[atomIndex]
+            oss << SqlGenerator::BACK_QUOTE
+                << group[atomIndex]
+                << SqlGenerator::BACK_QUOTE
                 << " "
-                << bodyAtomAlias[atomIndex];
+                << SqlGenerator::BACK_QUOTE
+                << bodyAtomAlias[atomIndex]
+                << SqlGenerator::BACK_QUOTE;
         }
         fromStrs.emplace_back(oss.str());
     }
     return fromStrs;
 }
+
 
 string SqlGenerator::generateJoin(vector<AtomMap>& bodyAtoms, 
     map<string, map<int, vector<int>>>& joinArgs, 
@@ -328,7 +371,13 @@ string SqlGenerator::generateJoin(vector<AtomMap>& bodyAtoms,
             Schema& relation = pg.getRelation(atom.name);
             for (auto joinArgIndex : atomIt.second) {
                 string equalStr;
-                string currentArg = bodyAtomAlias[atomIndex] + "." + relation.attributes[joinArgIndex].name;
+                string currentArg = SqlGenerator::BACK_QUOTE 
+                    + bodyAtomAlias[atomIndex]
+                    + SqlGenerator::BACK_QUOTE 
+                    + "." 
+                    + SqlGenerator::BACK_QUOTE
+                    + relation.attributes[joinArgIndex].name
+                    + SqlGenerator::BACK_QUOTE;
                 if (lastArg.size() > 0) {
                     equalStr = lastArg + " = " + currentArg;
                     equalStrs.emplace_back(equalStr);
@@ -365,9 +414,13 @@ string SqlGenerator::generateComparision(vector<AtomMap>& bodyAtoms,
                 ostringstream oss;
                 if (cmp.otherSideType == ComparisonStruct::TYPE_NUM) {
                     if (cmp.baseVarSide == ComparisonStruct::LSIDE) {
-                        oss << atomAlias
+                        oss << SqlGenerator::BACK_QUOTE
+                            << atomAlias
+                            << SqlGenerator::BACK_QUOTE
                             << "."
+                            << SqlGenerator::BACK_QUOTE
                             << attr
+                            << SqlGenerator::BACK_QUOTE
                             << " "
                             << cmp.compareOp
                             << " "
@@ -377,34 +430,54 @@ string SqlGenerator::generateComparision(vector<AtomMap>& bodyAtoms,
                             << " "
                             << cmp.compareOp
                             << " "
+                            << SqlGenerator::BACK_QUOTE
                             << atomAlias
+                            << SqlGenerator::BACK_QUOTE
                             << "."
-                            << attr;
+                            << SqlGenerator::BACK_QUOTE
+                            << attr
+                            << SqlGenerator::BACK_QUOTE;
                     }
                 } else if (cmp.otherSideType == ComparisonStruct::TYPE_VAR) {
                     string otherAtomAlias = bodyAtomAlias[cmp.otherSideAtomIndex];
                     string otherAttr = pg.getRelation(bodyAtoms[cmp.otherSideAtomIndex].name)
                         .attributes[cmp.otherSideArgIndex].name;
                     if (cmp.baseVarSide == ComparisonStruct::RSIDE) {
-                        oss << atomAlias
-                            << "."
-                            << attr
-                            << " "
-                            << cmp.compareOp
-                            << " "
-                            << otherAtomAlias
-                            << "."
-                            << otherAttr;
-                    } else {
-                        oss << otherAtomAlias
-                            << "."
-                            << otherAttr
-                            << " "
-                            << cmp.compareOp
-                            << " "
+                        oss << SqlGenerator::BACK_QUOTE
                             << atomAlias
+                            << SqlGenerator::BACK_QUOTE
                             << "."
-                            << attr;
+                            << SqlGenerator::BACK_QUOTE
+                            << attr
+                            << SqlGenerator::BACK_QUOTE
+                            << " "
+                            << cmp.compareOp
+                            << " "
+                            << SqlGenerator::BACK_QUOTE
+                            << otherAtomAlias
+                            << SqlGenerator::BACK_QUOTE
+                            << "."
+                            << SqlGenerator::BACK_QUOTE
+                            << otherAttr
+                            << SqlGenerator::BACK_QUOTE;
+                    } else {
+                        oss << SqlGenerator::BACK_QUOTE
+                            << otherAtomAlias
+                            << SqlGenerator::BACK_QUOTE
+                            << "."
+                            << SqlGenerator::BACK_QUOTE
+                            << otherAttr
+                            << SqlGenerator::BACK_QUOTE
+                            << " "
+                            << cmp.compareOp
+                            << " "
+                            << SqlGenerator::BACK_QUOTE
+                            << atomAlias
+                            << SqlGenerator::BACK_QUOTE
+                            << "."
+                            << SqlGenerator::BACK_QUOTE
+                            << attr
+                            << SqlGenerator::BACK_QUOTE;
                     }
                 }
                 comparisonItems.emplace_back(oss.str());
@@ -437,9 +510,13 @@ string SqlGenerator::generateConstantConstraint(vector<AtomMap>& bodyAtoms,
             ostringstream oss;
             int argIndex = argIt.first;
             Attribute& attr = pg.getRelation(atomName).attributes[argIndex]; 
-            oss << atomAlias
+            oss << SqlGenerator::BACK_QUOTE
+                << atomAlias
+                << SqlGenerator::BACK_QUOTE
                 << "."
+                << SqlGenerator::BACK_QUOTE
                 << attr.name
+                << SqlGenerator::BACK_QUOTE
                 << " = ";
             string constant = argIt.second;
             if (attr.isNumeric()) {
@@ -480,9 +557,13 @@ string SqlGenerator::generateNegation(vector<AtomMap>& bodyAtoms,
             Attribute& attr = relation.attributes[argIndex];
             if (arg.isConst()) {
                 ostringstream oss;
-                oss << negAtomAlias[negIndex]
+                oss << SqlGenerator::BACK_QUOTE
+                    << negAtomAlias[negIndex]
+                    << SqlGenerator::BACK_QUOTE
                     << "."
+                    << SqlGenerator::BACK_QUOTE
                     << attr.name
+                    << SqlGenerator::BACK_QUOTE
                     << " = ";
                 if (attr.isNumeric()) {
                     oss << arg.name;
@@ -494,26 +575,38 @@ string SqlGenerator::generateNegation(vector<AtomMap>& bodyAtoms,
                 negEqStrs.emplace_back(oss.str());
             } else if (arg.isVar()) {
                 ostringstream oss;
-                oss << negAtomAlias[negIndex]
+                oss << SqlGenerator::BACK_QUOTE
+                    << negAtomAlias[negIndex]
+                    << SqlGenerator::BACK_QUOTE
                     << "."
+                    << SqlGenerator::BACK_QUOTE
                     << attr.name
+                    << SqlGenerator::BACK_QUOTE
                     << " = ";
                 int posAtomIndex = antiJoinArgs[negIndex][argIndex].first;
                 AtomMap& posAtom = bodyAtoms[posAtomIndex];
                 Schema& posRelation = pg.getRelation(posAtom.name);
                 int argIndexInPosAtom = antiJoinArgs[negIndex][argIndex].second;
-                oss << bodyAtomAlias[posAtomIndex]
+                oss << SqlGenerator::BACK_QUOTE
+                    << bodyAtomAlias[posAtomIndex]
+                    << SqlGenerator::BACK_QUOTE
                     << "."
-                    << posRelation.attributes[argIndexInPosAtom].name;
+                    << SqlGenerator::BACK_QUOTE
+                    << posRelation.attributes[argIndexInPosAtom].name
+                    << SqlGenerator::BACK_QUOTE;
                 negEqStrs.emplace_back(oss.str());
             }
         }
 
         ostringstream oss;
         oss << "NOT EXISTS (SELECT * FROM "
+            << SqlGenerator::BACK_QUOTE
             << negAtom.name
+            << SqlGenerator::BACK_QUOTE
             << " "
-            << negAtomAlias[negIndex];
+            << SqlGenerator::BACK_QUOTE
+            << negAtomAlias[negIndex]
+            << SqlGenerator::BACK_QUOTE;
         if (negEqStrs.size() > 0) {
             oss << " WHERE ";
             for (auto it = negEqStrs.begin(); it != negEqStrs.end(); it++) {
@@ -539,23 +632,25 @@ string SqlGenerator::generateNegation(vector<AtomMap>& bodyAtoms,
 }
 
 string SqlGenerator::generateGroupBy(AtomMap& head, DatalogProgram& pg) {
-    vector<string> aggAttrs;
+    vector<string> groupByAttrs;
     Schema& relation = pg.getRelation(head.name);
     for (int i = 0; i < head.argList.size(); i++) {
         AtomArg& arg = head.argList[i];
-        if (arg.isAgg()) {
-            aggAttrs.emplace_back(relation.attributes[i].name);
+        if (!arg.isAgg()) {
+            groupByAttrs.emplace_back(relation.attributes[i].name);
         }
     }
     ostringstream oss;
-    if (aggAttrs.size() > 0) {
+    if (groupByAttrs.size() > 0) {
         oss << "GROUP BY ";
     }
-    for (auto it = aggAttrs.begin(); it != aggAttrs.end(); it++) {
-        if (it != aggAttrs.begin()) {
+    for (auto it = groupByAttrs.begin(); it != groupByAttrs.end(); it++) {
+        if (it != groupByAttrs.begin()) {
             oss << ", ";
         }
-        oss << *it;
+        oss << SqlGenerator::BACK_QUOTE
+            << *it
+            << SqlGenerator::BACK_QUOTE;
     }
     return oss.str();
 }
@@ -570,9 +665,13 @@ string SqlGenerator::generateIntersection(string tmpIdbDelta,
         if (it != relation.attributes.begin()) {
             oss << ", ";
         }
-        oss << idb
+        oss << SqlGenerator::BACK_QUOTE
+            << idb
+            << SqlGenerator::BACK_QUOTE
             << "."
-            << it->name;
+            << SqlGenerator::BACK_QUOTE
+            << it->name
+            << SqlGenerator::BACK_QUOTE;
     }
     string projection{oss.str()};
 
@@ -602,15 +701,23 @@ string SqlGenerator::generateIntersection(string tmpIdbDelta,
             oss << " AND ";
         }
         Attribute& attr = relation.attributes[i];
-        oss << tmpIdbDelta
+        oss << SqlGenerator::BACK_QUOTE
+            << tmpIdbDelta
+            << SqlGenerator::BACK_QUOTE
             << "."
+            << SqlGenerator::BACK_QUOTE
             << attr.name
+            << SqlGenerator::BACK_QUOTE
             << " "
             << compareOp
             << " "
+            << SqlGenerator::BACK_QUOTE
             << idb
+            << SqlGenerator::BACK_QUOTE
             << "."
-            << attr.name;
+            << SqlGenerator::BACK_QUOTE
+            << attr.name
+            << SqlGenerator::BACK_QUOTE;
     }
     string constraints{oss.str()};
 
@@ -618,7 +725,9 @@ string SqlGenerator::generateIntersection(string tmpIdbDelta,
     oss << "SELECT "
         << projection
         << " FROM "
+        << SqlGenerator::BACK_QUOTE
         << idb
+        << SqlGenerator::BACK_QUOTE
         << " WHERE "
         << constraints;
     string intersection{oss.str()};
@@ -658,33 +767,82 @@ string SqlGenerator::generateSetDiff(string tmpIdbDelta,
             oss << " AND ";
         }
         Attribute& attr = relation.attributes[i];
-        oss << tmpIdbDelta
+        oss << SqlGenerator::BACK_QUOTE
+            << tmpIdbDelta
+            << SqlGenerator::BACK_QUOTE
             << "."
+            << SqlGenerator::BACK_QUOTE
             << attr.name
+            << SqlGenerator::BACK_QUOTE
             << " "
             << compareOp
             << " "
+            << SqlGenerator::BACK_QUOTE
             << idb
+            << SqlGenerator::BACK_QUOTE
             << "."
-            << attr.name;
+            << SqlGenerator::BACK_QUOTE
+            << attr.name
+            << SqlGenerator::BACK_QUOTE;
     }
     string constraints{oss.str()};
 
     oss.str("");
     oss << "INSERT INTO "
+        << SqlGenerator::BACK_QUOTE
         << idbDelta
+        << SqlGenerator::BACK_QUOTE
         << " SELECT * FROM "
+        << SqlGenerator::BACK_QUOTE
         << tmpIdbDelta
+        << SqlGenerator::BACK_QUOTE
         << " WHERE NOT EXISTS "
         << "("
         << "SELECT * FROM "
+        << SqlGenerator::BACK_QUOTE
         << idb
+        << SqlGenerator::BACK_QUOTE
         << " WHERE "
         << constraints
         << ")";
     return oss.str();
 }
 
+
+string SqlGenerator::generateDrop(string tableName) {
+    ostringstream oss;
+    oss << "DROP TABLE IF EXISTS "
+        << SqlGenerator::BACK_QUOTE
+        << tableName
+        << SqlGenerator::BACK_QUOTE
+        << ";";
+    
+    return oss.str();
+}
+
+
+string SqlGenerator::generateCreate(Schema& relation, string tableName) {
+    ostringstream oss;
+    oss << "CREATE TABLE "
+        << SqlGenerator::BACK_QUOTE
+        << tableName
+        << SqlGenerator::BACK_QUOTE
+        << " (";
+
+    for (auto it = relation.attributes.begin(); it != relation.attributes.end(); it++) {
+        if (it != relation.attributes.begin()) {
+            oss << ", ";
+        }
+        oss << SqlGenerator::BACK_QUOTE
+            << it->name
+            << SqlGenerator::BACK_QUOTE
+            << " "
+            << it->type;
+    }
+    oss << ");";
+    
+    return oss.str();
+}
 
 /**
  * @brief 计算每个var在哪个atom的哪些位置

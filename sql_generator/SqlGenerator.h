@@ -153,4 +153,8 @@ class SqlGenerator {
             string idbDelta, 
             Schema& relation, 
             map<int, string>& headAggregation);
+        string generateDrop(string table);
+        string generateCreate(Schema& relation, string tableName);
+
+        static const string BACK_QUOTE;
 };

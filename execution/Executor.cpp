@@ -151,12 +151,13 @@ void Executor::recursiveEval(vector<RuleMap> &rules, DatalogProgram& pg) {
 }
 
 void Executor::dropTable(string tableName) {
-    ostringstream oss;
-    oss << "DROP TABLE IF EXISTS `"
-        << tableName
-        << "`;";
+    // ostringstream oss;
+    // oss << "DROP TABLE IF EXISTS `"
+    //     << tableName
+    //     << "`;";
     
-    string sqlStr = oss.str();
+    SqlGenerator sqlGen;
+    string sqlStr = sqlGen.generateDrop(tableName);
     std::cout << sqlStr << std::endl;
     this->execute(sqlStr);
 }
@@ -164,22 +165,23 @@ void Executor::dropTable(string tableName) {
 void Executor::createTable(Schema& relation, string tableName) {
     this->dropTable(tableName);
 
-    ostringstream oss;
-    oss << "CREATE TABLE `"
-        << tableName
-        << "` (";
+    // ostringstream oss;
+    // oss << "CREATE TABLE `"
+    //     << tableName
+    //     << "` (";
 
-    for (auto it = relation.attributes.begin(); it != relation.attributes.end(); it++) {
-        if (it != relation.attributes.begin()) {
-            oss << ", ";
-        }
-        oss << "`"
-            << it->name
-            << "` "
-            << it->type;
-    }
-    oss << ");";
-    string sqlStr = oss.str();
+    // for (auto it = relation.attributes.begin(); it != relation.attributes.end(); it++) {
+    //     if (it != relation.attributes.begin()) {
+    //         oss << ", ";
+    //     }
+    //     oss << "`"
+    //         << it->name
+    //         << "` "
+    //         << it->type;
+    // }
+    // oss << ");";
+    SqlGenerator sqlGen;
+    string sqlStr = sqlGen.generateCreate(relation, tableName);
     std::cout << sqlStr << std::endl;
     this->execute(sqlStr);
 }
