@@ -48,3 +48,5 @@ target_link_libraries(engine
 )
 
 add_executable(demo demo.cpp)
+
+add_executable(data_gen ./data_gen/data_gen.cpp)

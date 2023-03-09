@@ -634,12 +634,19 @@ string SqlGenerator::generateNegation(vector<AtomMap>& bodyAtoms,
 string SqlGenerator::generateGroupBy(AtomMap& head, DatalogProgram& pg) {
     vector<string> groupByAttrs;
     Schema& relation = pg.getRelation(head.name);
+    int aggCount = 0;
     for (int i = 0; i < head.argList.size(); i++) {
         AtomArg& arg = head.argList[i];
         if (!arg.isAgg()) {
             groupByAttrs.emplace_back(relation.attributes[i].name);
+        } else {
+            aggCount++;
         }
     }
+    if (aggCount == 0) {
+        return "";
+    }
+    
     ostringstream oss;
     if (groupByAttrs.size() > 0) {
         oss << "GROUP BY ";
