@@ -5,5 +5,5 @@ IDB_DECL:
 Reach(x int)
 
 RULE_DECL:
-Reach(1) :-.
+Reach(17) :- Arc(17, _).
 Reach(y) :- Reach(x), Arc(x,y).

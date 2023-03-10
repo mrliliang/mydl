@@ -6,7 +6,7 @@ Sssp2(x int, y int)
 Sssp(x int, y int)
 
 RULE_DECL:
-Sssp2(1, 0) :-.
+Sssp2(17, 0) :- Arc(17, _, _).
 Sssp2(y, MIN(d1+d2)) :- Sssp2(x, d1), Arc(x, y, d2).
 Sssp(x, MIN(d)) :- Sssp2(x, d).
 

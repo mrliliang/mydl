@@ -32,6 +32,7 @@ int main(int argc, char* argv[]) {
         char a;
         int u, v, w;
         iss >> a >> u >> v >> w;
+        // ofs << u << "," << v << "," << w << std::endl;
         ofs << u << "," << v << std::endl;
     }
     ifs.close();
