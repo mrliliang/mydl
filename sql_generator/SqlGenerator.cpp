@@ -70,16 +70,28 @@ string SqlGenerator::generateRuleEval(RuleMap &rule, DatalogProgram& pg) {
 
     string where;
     if (join.size() > 0) {
-        where.append(" ").append(join);
+        if (where.size() > 0) {
+            where.append(" AND ");
+        }
+        where.append(join);
     }
     if (compare.size() > 0) {
-        where.append(" ").append(compare);
+        if (where.size() > 0) {
+            where.append(" AND ");
+        }
+        where.append(compare);
     }
     if (constantConstraint.size() > 0) {
-        where.append(" ").append(constantConstraint);
+        if (where.size() > 0) {
+            where.append(" AND ");
+        }
+        where.append(constantConstraint);
     }
     if (negation.size() > 0) {
-        where.append(" ").append(negation);
+        if (where.size() > 0) {
+            where.append(" AND ");
+        }
+        where.append(negation);
     }
     if (where.size() > 0) {
         where = "WHERE" + where;
@@ -161,16 +173,28 @@ vector<string> SqlGenerator::generateRecursiveRuleEval(RuleMap& rule,
 
     string where;
     if (join.size() > 0) {
-        where.append(" ").append(join);
+        if (where.size() > 0) {
+            where.append(" AND ");
+        }
+        where.append(join);
     }
     if (compare.size() > 0) {
-        where.append(" ").append(compare);
+        if (where.size() > 0) {
+            where.append(" AND ");
+        }
+        where.append(compare);
     }
     if (constantConstraint.size() > 0) {
-        where.append(" ").append(constantConstraint);
+        if (where.size() > 0) {
+            where.append(" AND ");
+        }
+        where.append(constantConstraint);
     }
     if (negation.size() > 0) {
-        where.append(" ").append(negation);
+        if (where.size() > 0) {
+            where.append(" AND ");
+        }
+        where.append(negation);
     }
     if (where.size() > 0) {
         where = "WHERE" + where;

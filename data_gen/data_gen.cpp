@@ -21,9 +21,10 @@ int main(int argc, char* argv[]) {
     ifstream ifs{inputFile};
     ofstream ofs{outputFile};
 
+    std::cout << "Generating data" << std::endl;
     string line;
     while (std::getline(ifs, line) && line.size() > 0) {
-        std::cout << line << std::endl;
+        // std::cout << line << std::endl;
         if (line[0] != 'a') {
             continue;
         }
@@ -35,4 +36,6 @@ int main(int argc, char* argv[]) {
     }
     ifs.close();
     ofs.close();
+
+    std::cout << "Data generation done!" << std::endl;
 }
